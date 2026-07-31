@@ -6,7 +6,7 @@ configuration:
   enablePopovers: true
   analytics: null
   locale: uk-UA
-  baseUrl: popovvasile.github.io/osint-ai-2026
+  baseUrl: osinter.dev/osint-ai-2026
   ignorePatterns:
     - private
     - templates
