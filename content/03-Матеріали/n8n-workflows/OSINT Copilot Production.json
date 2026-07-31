@@ -1,0 +1,1734 @@
+{
+  "name": "OSINT Copilot Production",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ddc256e2-69f1-41ab-a369-b0d8ac6df098/chat/completions",
+        "responseMode": "lastNode",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/event-stream"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-cache"
+              },
+              {
+                "name": "Connection",
+                "value": "keep-alive"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -22336,
+        -2128
+      ],
+      "id": "ebaae1cd-725d-45fb-ad8c-4f4bfa29d660",
+      "name": "Webhook1",
+      "webhookId": "ddc256e2-69f1-41ab-a369-b0d8ac6df098"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.2-chat-latest",
+          "mode": "list",
+          "cachedResultName": "gpt-5.2-chat-latest"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -16752,
+        -1472
+      ],
+      "id": "93f3e185-bfb7-4ff9-99a4-49f5d1000494",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "MdDNx8OT5GBV3CGg",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('SetNode').item.json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -15536,
+        -1792
+      ],
+      "id": "d050504f-4215-4fd9-bc88-bd665bac6ad9",
+      "name": "Simple Memory",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User query: {{ $json.chatInput }}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are the Query Analysis Agent in an OSINT investigation system. Your job is to:\n\n**STEP 1: LANGUAGE DETECTION**\n- Identify the language and script of the user's query (Latin, Cyrillic, Arabic, Chinese, Hebrew, etc.)\n- Process ALL scripts equally - Russian (Кириллица), Arabic (العربية), Chinese (中文), Hebrew (עברית), etc.\n\n**STEP 2: CALL \"AI Agent Tool\"**\n**!Use your tool \"AI Agent Tool\" every time**\nGive the AI Agent tool all data {{ $json.chatInput }} \nCombine data from {{ $json.chatInput }} and \"AI Agent Tool\".\nIf no data from \"AI Agent Tool\" - extract entities directly from {{ $json.chatInput }}\n\n**STEP 3: ENTITY EXTRACTION**\nParse the user's query {{ $json.chatInput }} and \"AI Agent Tool\" data to identify ALL target entities:\n- **Persons**: Full names, nicknames, aliases (in ANY language/script)\n- **Companies**: Business names, trade names, abbreviations (in ANY language/script)\n- **Identifiers**: INN, OGRN, passport numbers, registration numbers\n- **Relationships**: management, ownership, employment, family, partnership, etc.\n\n\n\n**CRITICAL: ALWAYS RETURN AT LEAST ONE ENTITY**\n- If only ONE entity is found (e.g., \"Investigate Газпром\"), use that entity as BOTH entity1 AND entity2 with relationship \"SELF_INVESTIGATION\"\n- If the query contains a company/person name in ANY language, extract it\n- If the query contains identifiers (INN, OGRN, phone, email), treat them as entity1\n\n**MULTILINGUAL RULES:**\n1. Preserve original script: \"Владимир Путин\" stays Cyrillic, \"محمد بن سلمان\" stays Arabic\n2. Do NOT transliterate unless explicitly requested\n3. Recognize mixed-script queries: \"Investigate Газпром subsidiaries\" → entity1=\"Газпром\"\n4. Handle name variations: Иванов Иван Иванович, Ivan Ivanov, إيفان إيفانوف\n\n**ENTITY TYPE RULES:**\n- \"entity1_type\" and \"entity2_type\" MUST be exactly \"person\" or \"company\"\n- Identifiers (INN, OGRN) → assume \"company\" unless context says person\n- Government bodies → \"company\"\n\n**MANDATORY PRESERVATION RULES - NO EXCEPTIONS:**\n1. Copy names CHARACTER-BY-CHARACTER from the user query in ORIGINAL SCRIPT\n2. NEVER change word order: \"Surname Name Patronymic\" stays \"Surname Name Patronymic\"\n3. NEVER drop middle names, patronymics, or suffixes\n4. NEVER transliterate Cyrillic↔Latin↔Arabic unless explicitly asked\n5. When in doubt, quote the name EXACTLY from the user input\n\n**FALLBACK BEHAVIOR (if extraction seems to fail):**\n- Search for ANY proper nouns (capitalized words, quoted strings)\n- Search for ANY identifiers (numbers that look like INN/OGRN/phone)\n- Use the ENTIRE query as entity1 if nothing else found\n- NEVER return empty entities array\n\nReturn max 10 entities. Focus on the most important links.\n\nRespond in JSON format:\n{\n  \"entities\": [{\n    \"entity1\": \"full_entity1_name_exactly_as_provided_in_original_script\", \n    \"entity1_type\": \"person\" or \"company\", \n    \"entity1_country\": \"2-letter country code or empty\",\n    \"entity2\": \"full_entity2_name_or_same_as_entity1_for_single_entity\", \n    \"entity2_type\": \"person\" or \"company\", \n    \"type_of_relationship\": \"relationship_type_or_SELF_INVESTIGATION\"\n  }]\n}\n\n**EXAMPLES:**\nQuery: \"Investigate Газпром\" → entity1=\"Газпром\", entity2=\"Газпром\", relationship=\"SELF_INVESTIGATION\"\nQuery: \"محمد بن سلمان\" → entity1=\"محمد بن سلمان\", entity2=\"محمد بن سلمان\", relationship=\"SELF_INVESTIGATION\"\nQuery: \"INN 7736050003\" → entity1=\"7736050003\", entity1_type=\"company\", relationship=\"SELF_INVESTIGATION\"\nQuery: \"Связи Иванова с Газпром\" → entity1=\"Иванов\", entity2=\"Газпром\", relationship=\"employment\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -19584,
+        -2128
+      ],
+      "id": "e133ac52-8ca1-4935-9f6f-a3ce7bafbb6b",
+      "name": "Plan the research"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=You are conducting an open-source intelligence (OSINT) investigation for due diligence and anti-fraud purposes.\n\nBelow is ALL the data collected from various sources:\nFrom databases - {{ $json.sanc_data }};\nWeb-search - {{ $json.web_data }}.\n**Use ALL of it to write a deep report for a few sheets.**\n\n**If any previous node or tool errors occur, continue generating the report using all valid data and, only if errors exist, add an “Errors & Warnings” section with date/time, node or tool identifier, and a brief technical description, proposition to contact contact@probepointanalytics.com, without affecting the report’s structure or conclusions.**\n\n**Instructions:**\n- ALWAYS call AI_Tool first!\n- Use ALL the data from databases + web search + AI_Tool output.\n- Do not omit any relevant details.\n- !Make a Sanctions section very detailed. List all sanctions for each country with full texts!\n- If some sections are empty, mention this in the report.\n- Structure your report clearly by sections (sanctions, background, media, risks, biography, activity etc).\n- If multiple tax identification numbers (INN) or other personal identifiers are found for the same person, include only one — the most reliable or most frequently cited.\n- At the end of each section, include a list of links to the sources (URLs) from which the information in that section was obtained.\n- At the end of the report add a section \"Suggestions\". Use \"AI_Tool\" tool for this! Based on the data analyzed, suggest specific Persons and Companies that could be investigated further for deeper research.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -13008,
+        -2096
+      ],
+      "id": "7639f30d-cbab-44e7-b4c5-32b4c84b58cf",
+      "name": "Analytics Agent",
+      "executeOnce": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User query: \"{{ $json.main_relationship }}\"\n\n\n",
+        "options": {
+          "systemMessage": "=You are conducting an open-source intelligence (OSINT) investigation for due diligence and anti-fraud purposes.\n\nYour goal is to gather all relevant public data to assess potential sanctions risks, political exposure, adverse media mentions, and affiliations, and write a detailed report. You must always use the \"API_Converter1\" tool and follow a structured investigative approach.\n\n\"API_Converter1\"\nUse as much information from \"API_Converter1\" as possible! Absolutely all useful information and nested data from \"API_Converter1\" must be preserved and reflected in the output.\n\nInstructions:\n\nUse \"API_Converter1\" tool every time!\n\nFor each section in the output, use all relevant data from the corresponding source, especially \"API_Converter1\". Do not omit any fields or lists: include aliases, dates, places, education, positions, sanctions, all source URLs, and every nested property. If the API provides arrays or objects, include them all in full.\n\nAt the end of each section, include a list of all source links (URLs) utilized for that section. If a section uses multiple sources, list every relevant link.\n\nIf a section is empty, explicitly state \"No data found\".\n\nCross-reference all entities and flag any inconsistencies or red flags.\n\nUse the \"API_Converter1\" tool every time!\n\nThe output must be in the following structured JSON format (retain and expand each section as needed to include all input data):\n\njson\n{\n  \"general_info\": {...}, // Extract all fields from API_Converter1 and all sources: names, aliases, dates, places, education, gender, etc.\n  \"sanctions\": [...],    // Include every sanction object, all details, and every relevant URL.\n  \"pep_check\": {...},    // Use all information about political exposure from all tools and sources.\n  \"identity_background\": {...}, // Include all available registration and biographical data, all nested fields.\n  \"related_entities\": [...], // Fully detail all affiliated individuals and organizations.\n  \"online_presence\": {...}, // Include all discovered links, accounts, websites, and profiles.\n  \"potential_risks\": [...]   // List all flagged issues, risk indicators, and inconsistencies, with all source URLs.\n}\nCRITICAL: Every section must contain ALL relevant and nested information from \"API_Converter1\"—do not discard or omit anything, even if it seems duplicated or appears in multiple sections. Expand array and object fields as needed to capture every detail. Ensure the final report is as comprehensive as technically possible.\n\nIf a new category or nested object appears in \"API_Converter1\", include its data in the appropriate place and reflect it fully in the output.\n\nIf you do not have data for a required section, explicitly write \"No data found\" in that section.",
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -13856,
+        -2256
+      ],
+      "id": "0f87c5a1-54d4-4412-b1cf-b28bab41edfb",
+      "name": "Research agent"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\"entities\": [{\n\"entity1\": \"entity1_name\", \n\"entity1_type\": \"entity_type1\", \n\"entity1_country\": \"entity_country\",\n\"entity2\": \"entity2_name\", \n\"entity2_type\": \"entity_type2\", \n\"type_of_relationship\":\"type_of_relationship\"}\n]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -18560,
+        -1584
+      ],
+      "id": "80730f52-25f3-4b79-8b14-3dc86377fdcc",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"{{ $json.relationship }}\",\n  \"search_depth\": \"advanced\",\n  \"topic\": \"general\",\n  \"days\": 2,\n  \"max_results\": 2,\n  \"api_key\": \"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\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -17344,
+        -2096
+      ],
+      "id": "c850d08b-b1c7-4d66-af96-954c6790242c",
+      "name": "HTTP Request3",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const entities = $json.output.entities || [];\nconst out = [];\nconst seen = new Set();\n\n// Helper: Escape double quotes to prevent breaking JSON downstream\nconst clean = (str) => {\n  if (typeof str !== 'string') return str;\n  return str.replace(/\"/g, '\\\\\"').trim();\n};\n\n// Safe access to external variables (prevents crashes if nodes/data are missing)\nconst userId = $('RemapInput').first()?.json?.userId;\nconst globalCountry = $input.first()?.json?.output?.entities?.[0]?.entity1_country;\n\nfor (const e of entities) {\n  \n  // --- Entity 1 Processing ---\n  const e1Name = e.entity1 ? String(e.entity1) : ''; // Ensure string\n  \n  if (e1Name.trim()) {\n    const key = `${e1Name}|${e.entity1_type}`;\n    if (!seen.has(key)) {\n      seen.add(key);\n      out.push({ \n        json: { \n          query: clean(e1Name), \n          entityType: clean(e.entity1_type),\n          relationship: clean(e1Name), \n          userId: userId,\n          country: globalCountry\n        } \n      });\n    }\n  }\n  \n  // --- Entity 2 Processing ---\n  const e2Name = e.entity2 ? String(e.entity2) : ''; // Ensure string\n\n  if (e2Name.trim()) {\n    const key = `${e2Name}|${e.entity2_type}`;\n    if (!seen.has(key)) {\n      seen.add(key);\n      \n      // Safe relationship string construction\n      const relString = `${e1Name} ${e.type_of_relationship || ''} ${e2Name}`;\n\n      out.push({ \n        json: { \n          query: clean(e2Name), \n          entityType: clean(e.entity2_type),\n          relationship: clean(relString),\n          userId: userId,        // Added for schema consistency\n          country: globalCountry // Added for schema consistency\n        } \n      });\n    }\n  }\n}\n\nreturn out;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -18800,
+        -2208
+      ],
+      "id": "405c1189-c8ce-4f59-a447-1ac126104166",
+      "name": "Code4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": {{ JSON.stringify($json.chatInput) }},\n  \"search_depth\": \"advanced\",\n  \"topic\": \"general\",\n  \"max_results\": 5,\n  \"api_key\": \"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\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -19136,
+        -1696
+      ],
+      "id": "a120de0a-e73e-475c-82d1-18e8fe3cc303",
+      "name": "WebSearchTool"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Remap incoming OpenAI-like request to your OSINT input\nconst msgs = $json.body?.messages || [];\n\n// Собираем все user-сообщения\nconst userHistory = [];\nfor (const msg of msgs) {\n  if (msg.role === 'user') {\n    let content = msg.content || '';\n    if (Array.isArray(content)) {\n      const textItem = content.find(i => i.type === 'text');\n      content = textItem?.text || '';\n    }\n    const m = content.match(/<selected_text>(.*?)<\\/selected_text>/s);\n    const extracted = m ? m[1].trim() : content;\n    \n    // NORMALIZE AND ESCAPE QUOTES\n    const normalized = typeof extracted === 'string'\n      ? extracted.replace(/\\r?\\n+/g, ' ')\n          .replace(/\\\\n+/g, ' ')\n          .replace(/\\s{2,}/g, ' ')\n          .replace(/\"/g, '\\\\\"') // <--- ADDED: Escapes double quotes for safe JSON usage\n          .trim()\n      : '';\n      \n    if (normalized) userHistory.push(normalized);\n  }\n}\n\nconst lastContent = userHistory[userHistory.length - 1] || '';\nconst cleanContent = lastContent.replace(/^!NEW!\\s*/, '');\n\n// userId из Authorization\nconst authHeader = $json.headers['authorization'] || '';\nconst userId = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : 'guest';\n\n// Extract job_id, callback_url, and filename from request body\nconst job_id = $json.body?.job_id || $json.body?.userId || userId;\nconst callback_url = $json.body?.callback_url || '';\nconst filename = $json.body?.filename || 'report.md';\n\n// Формируем ответ\nconst out = {\n  chatInput: cleanContent,\n  userId,\n  job_id,\n  callback_url,\n  filename\n};\n\nif (userHistory.length > 1) {\n  out.history = userHistory; \n}\n\nreturn { json: out };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -20320,
+        -2128
+      ],
+      "id": "6966fd50-18af-4097-8241-ec429ccd8aa1",
+      "name": "RemapInput"
+    },
+    {
+      "parameters": {
+        "text": "=User query: {{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "=You are an OSINT investigation assistant specialized in filtering web search results about \"{{ $json.chatInput }}\". Your primary tool is a web search engine that queries information about a given person or company.\n\nWhen you receive a query (e.g., a person's name or a company name), follow these steps strictly:\n\n1. Analyze and filter the search results to focus exclusively on:\n   - Political figures: Any roles in government, elections, political parties, or lobbying.\n   - Deputies or parliament members: Current or past positions in legislative bodies.\n   - Sanctioned persons or entities.\n   - Sanctions, about {{ $json.chatInput }}.\n   - Myrotvorets list.\n   - legal/business entities.\n   - legal relationships.\n\n2. Determine the country/jurisdiction for {{ $json.chatInput }} based on:\n  1) Explicit country mentions in the data\n  2) Address information\n  3) Legal entity details\n  4) Context clues\n  5) Return format: {\"country\": \"RU\"}\n  6) If no clear country is found, return {\"country\": \"\"}.\n\n3. NEVER drop middle names, patronymics, or suffixes\n\n4. Respond in JSON format with the following fields:\n{\n  \"data\": \"found data\"\n  \"country\": \"found country\"\n}\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        -19472,
+        -1904
+      ],
+      "id": "348461e8-d2e2-40c7-9327-b727e770edcb",
+      "name": "AI Agent Tool",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Получаем все items (массив из 3 объектов)\nconst inputItems = items;\n\n// Извлекаем relationship из нужных items\nconst mainRelationship = inputItems[0].json.relationship;  // Только из первого\nconst searchRelationships = inputItems.map(item => item.json.relationship);\n\n// Возвращаем один item с структурированными данными\nreturn [{\n  json: {\n    main_relationship: mainRelationship,\n    search_queries: searchRelationships,\n    entityType: inputItems[0].json.entityType,\n    userId: $input.first().json.userId,\n    country: $input.first().json.country\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -17184,
+        -2304
+      ],
+      "id": "877fd035-2a1c-4274-a47b-5eae51bf3b7f",
+      "name": "Code2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -15088,
+        -2352
+      ],
+      "id": "c3a1fc7c-259c-4a83-8caa-c124e9ee479c",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Берём все items (до 11)\nconst allItems = items.map(item => item.json);\n\n// Объединяем все json в один объект (последние перезапишут дубликаты)\nconst mergedJson = allItems.reduce((acc, current) => ({ ...acc, ...current }), {});\n\n// Возвращаем один item\nreturn [{ json: mergedJson }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -14880,
+        -2352
+      ],
+      "id": "250ab437-b7e9-4ecc-ac3e-154dd2a5bdf7",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Получаем все items (массив любого размера)\nconst inputItems = items || [];  // Fallback to empty array if undefined\n\n// Проверяем на пустоту\nif (!inputItems.length) {\n  return [{ json: { search_results: 'No results found' } }];\n}\n\n// Извлекаем и форматируем результаты (предполагаем структуру item.json.results как массив объектов)\nlet allResults = [];\ninputItems.forEach(item => {\n  const data = item.json || {};  // Fallback if no json\n  if (data.results && Array.isArray(data.results)) {\n    allResults = allResults.concat(data.results);\n  }\n});\n\n// Форматируем в строку (title + content + URL для каждого)\nconst searchResultsString = allResults.map(result => {\n  return (result.title || 'N/A') + '\\n' + (result.content || 'N/A') + '\\nURL: ' + (result.url || 'N/A');\n}).join('\\n\\n');\n\n// Возвращаем один item с объединёнными результатами\nreturn [{ json: { search_results: searchResultsString } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16080,
+        -2128
+      ],
+      "id": "82b34be0-e822-4dfd-839c-3009a4bc99d7",
+      "name": "Code5"
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Code9').item.json.web_data }}, {{ $('Code9').item.json.sanc_data }}",
+        "options": {
+          "systemMessage": "=You are an OSINT Entity Extraction Agent. Extract Person and Company entities from the provided report, excluding the entity specified in the main relationship.\n\n**TASK:**\nExtract all Person and Company entities from the report, but EXCLUDE: {{ $('Code9').item.json.query }}\n\n**EXTRACTION RULES:**\n- Extract full names for persons (including middle names, titles)\n- Extract complete company names\n- Preserve exact spelling from source\n- Include positions/roles if mentioned\n- Exclude the main relationship entity completely\n\n**OUTPUT FORMAT:**\n```json\n{\n  \"entities\": [\n    {\n      \"name\": \"Full Entity Name\",\n      \"type\": \"Person|Company\"\n    }\n  ],\n  \"total_found\": \"number of entities extracted\"\n}\n```\n\nExtract all relevant entities from the report, excluding the main relationship entity."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        -12960,
+        -1760
+      ],
+      "id": "487f586a-18f6-464e-a87b-6ecceb622a36",
+      "name": "AI_Tool"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('RemapInput').first().json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('RemapInput').first().json.userId }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  job_id: $('RemapInput').first().json.job_id,\n  status: 'completed',\n  report_content: $json.output,\n  filename: $('RemapInput').first().json.filename,\n\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -12288,
+        -2672
+      ],
+      "id": "3c4f027b-b01f-4e97-b637-742139f4ff24",
+      "name": "HTTP Callback to Report API"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-search-preview-2025-03-11",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-SEARCH-PREVIEW-2025-03-11"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=query: \"{{ $('Code3').item.json.main_relationship }}\", \nsearch results: \"{{ $json.search_results }}\""
+            },
+            {
+              "content": "=You are an OSINT investigation assistant specialized in extracting and summarizing relevant information about a person or organization from provided search results. Your goal is to analyze all given search results comprehensively and return only the most pertinent details, focusing on verifiable facts from open sources.\nWhen you receive a query, follow these steps strictly:\n\nReview all search results and filter it only for {{ $('Code3').item.json.main_relationship }}.\n\nCross-reference duplicates or conflicting info across results, prioritizing higher-score or authoritative sources (e.g., official websites, Wikipedia, government databases).\nSave as much useful information as possible.\nIf no relevant information is found for a category, explicitly state \"No information found\" for that section.\nOutput format: A structured JSON object with the following keys:\n\n\"profile_summary\": A concise paragraph summarizing the entity's background.\n\"political_affiliations\": Bullet list of roles, parties, or positions.\n\"sanctions_and_legal\": Bullet list of sanctions, court cases, or legal issues.\n\"military_and_security\": Bullet list of ranks, roles, or involvements.\n\"other_details\": Bullet list of additional facts (e.g., location, contacts).\n\"sources\": Array of objects with { \"url\": \"...\", \"title\": \"...\", \"snippet\": \"brief excerpt justifying the info\" } for key claims.\n",
+              "role": "system"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -13792,
+        -2592
+      ],
+      "id": "aa311924-77d6-4a9e-bbbc-c33513950702",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "MdDNx8OT5GBV3CGg",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Ex9xjuSuGFfsNZgf",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/Ex9xjuSuGFfsNZgf",
+          "cachedResultName": "My workflow 4"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "country": "={{ $('Code3').item.json.country }}",
+            "entity_type": "={{ $('Code3').item.json.entityType }}",
+            "target_name": "={{ $('Code3').item.json.main_relationship }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "target_name",
+              "displayName": "target_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "entity_type",
+              "displayName": "entity_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -13536,
+        -2080
+      ],
+      "id": "93251a85-805d-4b1c-9698-88a7731f7a96",
+      "name": "API_Converter1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const a = $input.first().json?.choices?.[0]?.message?.content;\nconst b = $input.all()[1]?.json?.output;\nconst toText = v => (typeof v === 'string' ? v.trim() : (v ? JSON.stringify(v, null, 2) : ''));\nconst web_data = toText(a); \nconst sanc_data = toText(b);\n\nconst { main_relationship: query, userId } = $('Code3').first().json ?? {};\nreturn [{ json: { userId, query, web_data, sanc_data } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -13216,
+        -2512
+      ],
+      "id": "aa2cd503-1108-42d7-92f3-d78909f4b919",
+      "name": "Code9"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -13392,
+        -2512
+      ],
+      "id": "a84a2cbd-9d7a-4993-9e13-71c8eaa37f7a",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.2-chat-latest",
+          "mode": "list",
+          "cachedResultName": "gpt-5.2-chat-latest"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -13232,
+        -1536
+      ],
+      "id": "22beef24-91b5-4e18-b660-871932d4193d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "MdDNx8OT5GBV3CGg",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('RemapInput').first().json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('RemapInput').item.json.userId }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  job_id: $('RemapInput').first().json.job_id,\n    \"type\": \"progress\",\n    \"message\": \"Generating tasks for futher investigation\",\n    \"percent\": 20, \n    \"status\": \"processing\"\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -19168,
+        -2512
+      ],
+      "id": "e546e5ce-4bea-40f3-afb3-94a8992adf23",
+      "name": "HTTP Callback to Report API1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('RemapInput').first().json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.userId }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  job_id: $('RemapInput').first().json.job_id,\n    \"type\": \"progress\",\n    \"message\": \"Analyzing user`s query\",\n    \"percent\": 10,\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -20032,
+        -2368
+      ],
+      "id": "46a469f2-64f5-4235-9ffa-f903391dfc05",
+      "name": "HTTP Callback to Report API2",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('RemapInput').first().json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('RemapInput').item.json.userId }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  job_id: $('RemapInput').first().json.job_id,\n    \"type\": \"progress\",\n    \"message\": \"Web-searching and scrapping\",\n    \"percent\": 30,\n    \"status\": \"processing\"\n\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -16672,
+        -2640
+      ],
+      "id": "598d6a76-a3dc-457a-b82a-6dcdf1710360",
+      "name": "HTTP Callback to Report API3",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('RemapInput').first().json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('RemapInput').first().json.userId }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  job_id: $('RemapInput').first().json.job_id,\n    \"type\": \"progress\",\n    \"message\": \"Analizing found data\",\n    \"percent\": 40,\n    \"status\": \"processing\"\n\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -15968,
+        -2592
+      ],
+      "id": "d5ac2c27-3c64-4c75-aaef-0b10b5ef6001",
+      "name": "HTTP Callback to Report API4",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('RemapInput').first().json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('RemapInput').first().json.userId }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  job_id: $('RemapInput').first().json.job_id,\n    \"type\": \"progress\",\n    \"message\": \"Cheking for sanctions, PEP and red flags\",\n    \"percent\": 50,\n    \"status\": \"processing\"\n\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -14576,
+        -2672
+      ],
+      "id": "22555a92-8d8e-47e7-8ea7-35e540aba5f3",
+      "name": "HTTP Callback to Report API5",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('RemapInput').first().json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('RemapInput').first().json.userId }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  job_id: $('RemapInput').first().json.job_id,\n    \"type\": \"progress\",\n    \"message\": \"Generating final report\",\n    \"percent\": 80,\n    \"status\": \"processing\"\n\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -12864,
+        -2544
+      ],
+      "id": "b62851fb-84b7-4417-89ea-7056e4631d3e",
+      "name": "HTTP Callback to Report API6",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('RemapInput').first().json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('RemapInput').first().json.userId }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  job_id: $('RemapInput').first().json.job_id,\n    \"type\": \"progress\",\n    \"message\": \"Downloading\",\n    \"percent\": 100,\n    \"status\": \"processing\"\n\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -12336,
+        -1984
+      ],
+      "id": "9b78dd33-67f4-498f-a90e-1db6b7eceffb",
+      "name": "HTTP Callback to Report API7",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('RemapInput').first().json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('RemapInput').first().json.userId }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  job_id: $('RemapInput').first().json.job_id,\n    \"type\": \"progress\",\n    \"message\": \"Analyzing\",\n    \"percent\": 60,\n    \"status\": \"processing\"\n\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -13408,
+        -2768
+      ],
+      "id": "3890b66b-e539-4fdf-9929-7ec3d47a5438",
+      "name": "HTTP Callback to Report API8",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -16896,
+        -1488
+      ],
+      "id": "86a55a2f-110e-4a1d-befb-0db9058995f4",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "WvDcLW6p4jUGWyK2",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.1-chat-latest",
+          "mode": "list",
+          "cachedResultName": "gpt-5.1-chat-latest"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -13056,
+        -1536
+      ],
+      "id": "27b1ff0f-2a20-48e5-a0ce-59c97b5e70c1",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "MdDNx8OT5GBV3CGg",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -22336,
+        -1808
+      ],
+      "id": "ddcb1877-fd05-46e8-8948-9965012ad95a",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "https://app.slack.com/client/T0A4FM63WF8/C0A4G4P9C5U",
+          "mode": "url"
+        },
+        "text": "={{ $json.workflow.name }}{{ $json.execution.error.message }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -22080,
+        -1808
+      ],
+      "id": "dae663d9-232f-4642-9cd5-13dbe1295d74",
+      "name": "Send a message",
+      "webhookId": "da73d069-5318-42ff-b231-5fd1beab0a07",
+      "credentials": {
+        "slackApi": {
+          "id": "ju9N5H9QJ9swhxHt",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "https://app.slack.com/client/T0A4FM63WF8/C0A4ECU3MMK",
+          "mode": "url"
+        },
+        "text": "TAVILY ERROR",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -17136,
+        -2000
+      ],
+      "id": "12650948-ef46-4758-8554-9759cc1a0825",
+      "name": "Send a message1",
+      "webhookId": "f4b1b982-ab41-4ce9-873b-d4ccf02ff80c",
+      "credentials": {
+        "slackApi": {
+          "id": "ju9N5H9QJ9swhxHt",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "14b997ec-2b17-49e9-a4e5-262cf22f22ec",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "={{/\\berrors\\b/i.test($json.output) && !/\\bno\\s+errors\\b/i.test($json.output)}}\n",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -12336,
+        -2224
+      ],
+      "id": "2fcee245-ba1d-4a13-83ae-e43b87f17684",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "https://app.slack.com/client/T0A4FM63WF8/C0A4G4P9C5U",
+          "mode": "url"
+        },
+        "text": "Some Node Error at core workflow!",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -12000,
+        -2240
+      ],
+      "id": "0d5a7a4a-582d-4457-883c-fd2b4628e727",
+      "name": "Send a message2",
+      "webhookId": "f4b1b982-ab41-4ce9-873b-d4ccf02ff80c",
+      "credentials": {
+        "slackApi": {
+          "id": "ju9N5H9QJ9swhxHt",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "81b3a625-b0c3-43cb-980e-142e359d324d",
+              "leftValue": "={{$json.output.entities.length>0}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -19120,
+        -2192
+      ],
+      "id": "da0980c7-f793-4012-a35b-0c4183824b36",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "https://app.slack.com/client/T0A4FM63WF8/C0A4ECU3MMK",
+          "mode": "url"
+        },
+        "text": "Entity extraction error",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -18864,
+        -2064
+      ],
+      "id": "b8b2aef9-ffd9-450b-a5e3-fe0fbcc4ee82",
+      "name": "Send a message3",
+      "webhookId": "f4b1b982-ab41-4ce9-873b-d4ccf02ff80c",
+      "credentials": {
+        "slackApi": {
+          "id": "ju9N5H9QJ9swhxHt",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('RemapInput').first().json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('RemapInput').first().json.userId }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  job_id: $('RemapInput').first().json.job_id,\n  status: 'failed',\n  error: \"I can’t determine the entity. Please clarify or be more specific in your request.\",\n\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -18848,
+        -2432
+      ],
+      "id": "a3eaa9ad-3b21-461c-97a4-03eb1969d072",
+      "name": "HTTP Callback to Report API9"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "60b50e61-4748-425e-83f0-268ca66e467b",
+              "leftValue": "={{ $json.body.messages?.some(m => m.type === 'report') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8286bd5b-6509-458b-8670-f1aa3e825d2a",
+              "leftValue": "={{\n  (() => {\n    const messages = $json.body.messages;\n    if (!messages) return '';\n    let userIdx = -1;\n    for (let i = messages.length - 1; i >= 0; i--) {\n      if (messages[i]?.role === \"user\") { userIdx = i; break; }\n    }\n    const question = userIdx >= 0 ? String(messages[userIdx].content ?? \"\").trim() : \"\";\n    return question;\n  })()\n}}",
+              "rightValue": "!NEW!",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -21856,
+        -2128
+      ],
+      "id": "2af917ca-07b6-4db6-b053-734395189647",
+      "name": "If2",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const messages = $json.body?.messages ?? [];\n\nlet userIdx = -1;\nfor (let i = messages.length - 1; i >= 0; i--) {\n  if (messages[i]?.role === \"user\") { userIdx = i; break; }\n}\n\nconst question = userIdx >= 0 ? String(messages[userIdx].content ?? \"\").trim() : \"\";\nconst contextMessages = userIdx > 0 ? messages.slice(0, userIdx) : [];\n\nconst authHeader = $json.headers['authorization'] || '';\nconst userId = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : 'guest';\nconst callback_url = $json.body?.callback_url || '';\n\nreturn [{\n  json: {\n    userId,\n    callback_url,\n    question,\n    context: contextMessages, // <-- ВАЖНО: лучше передавать массивом, не склеенной строкой\n    sessionId: $json.body?.sessionId,\n    job_id: $json.body?.job_id,\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -21232,
+        -2528
+      ],
+      "id": "6d1d8307-3ab4-43d1-8b0d-ec86e55327ca",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Conversation context:\n{{ JSON.stringify($json.context) }}\n\nUser question:\n{{ $json.question }}",
+        "options": {
+          "systemMessage": "You are a Q&A assistant. Use the provided conversation history as the only context.\nThe history contains an OSINT report. Answer the user’s last question using that report and relevant prior messages. For deeper research you can use your tool \"Search in Tavily\".\nIf the report doesn’t contain enough information, say what is missing and suggest what to generate next (e.g., “enhanced risk scoring”, “timeline”, “network map”).\nBe concise and structured."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -21040,
+        -2528
+      ],
+      "id": "e872575d-c4d6-44f9-b12a-d552ea7c1912",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.1-chat-latest",
+          "mode": "list",
+          "cachedResultName": "gpt-5.1-chat-latest"
+        },
+        "builtInTools": {
+          "webSearch": {
+            "searchContextSize": "medium"
+          }
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -21040,
+        -2320
+      ],
+      "id": "80f628ff-bfd1-4989-91f1-eba5290c4bdb",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "MdDNx8OT5GBV3CGg",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Code in JavaScript').first().json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('Code in JavaScript').first().json.userId }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  job_id: $('Code in JavaScript').first().json.job_id,\n  type: 'response',\n  status: 'completed',\n  content: $('AI Agent').item.json.output,\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -20704,
+        -2528
+      ],
+      "id": "0450d86e-d6c0-4b49-8f1c-c7c47eaa24de",
+      "name": "HTTP Callback to Report API10"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Code in JavaScript').first().json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Code in JavaScript').first().json.userId }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  job_id: $('Code in JavaScript').first().json.job_id,\n    \"type\": \"progress\",\n    \"message\": \"Analyzing the report\",\n    \"percent\": 10,\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -21376,
+        -2288
+      ],
+      "id": "1f3bdcf0-d5b8-4198-accc-8193f5828567",
+      "name": "HTTP Callback to Report API11",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "query": "={{ $('Code in JavaScript').item.json.question }}",
+        "options": {}
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 1,
+      "position": [
+        -20896,
+        -2320
+      ],
+      "id": "bd64024c-137c-4d47-94fb-8f12ef9669d1",
+      "name": "Search in Tavily",
+      "credentials": {
+        "tavilyApi": {
+          "id": "oyibeyAqqOQ0FEv8",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "Prod",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -17840,
+        -1392
+      ],
+      "id": "502cffb5-6967-4cb1-897b-46221f43d640",
+      "name": "Azure OpenAI Chat Model",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "zCvsGkdi7RSgOiUI",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.osint-copilot.com",
+            "x-real-ip": "172.24.0.1",
+            "x-forwarded-for": "172.24.0.1",
+            "x-forwarded-proto": "https",
+            "connection": "upgrade",
+            "content-length": "352",
+            "user-agent": "python-requests/2.31.0",
+            "accept-encoding": "gzip, deflate, zstd",
+            "accept": "*/*",
+            "content-type": "application/json",
+            "authorization": "Bearer REDACTED_TOKEN"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "detailed report on Wagner group"
+              }
+            ],
+            "userId": "17dbb753-b1b7-47cf-a409-a940a35c9ac9",
+            "sessionId": "17dbb753-b1b7-47cf-a409-a940a35c9ac9",
+            "job_id": "17dbb753-b1b7-47cf-a409-a940a35c9ac9",
+            "callback_url": "https://api.osint-copilot.com/api/report-callback",
+            "filename": "report_2025-12-03_20-43-31_ad93a240.md"
+          },
+          "webhookUrl": "https://n8n.osint-copilot.com/webhook/ddc256e2-69f1-41ab-a369-b0d8ac6df098/chat/completions",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Plan the research",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Analytics Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Plan the research",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan the research": {
+      "main": [
+        [
+          {
+            "node": "HTTP Callback to Report API1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analytics Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Callback to Report API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Callback to Report API7",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research agent": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Plan the research",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Callback to Report API3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WebSearchTool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Tool",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RemapInput": {
+      "main": [
+        [
+          {
+            "node": "Plan the research",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Callback to Report API2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Plan the research",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Research agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Callback to Report API5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "HTTP Callback to Report API4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI_Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Analytics Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API_Converter1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Callback to Report API8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code9": {
+      "main": [
+        [
+          {
+            "node": "Analytics Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Callback to Report API6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Research agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analytics Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI_Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Callback to Report API9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Callback to Report API11",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RemapInput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Callback to Report API10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Callback to Report API11": {
+      "main": [
+        []
+      ]
+    },
+    "Search in Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true
+  },
+  "versionId": "5a56ed6b-99ea-4ab9-89c0-9718350bf788",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0b117642530262e72ecda9c24d3ad080d5c05facedad0573747b9dc1852951fb"
+  },
+  "id": "QyyX6JDQKhUHFth5",
+  "tags": []
+}

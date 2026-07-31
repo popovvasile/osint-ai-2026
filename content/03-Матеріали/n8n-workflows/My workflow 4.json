@@ -1,0 +1,1948 @@
+{
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "functionCode": "const entities = $input.first().json.entities;\nconst entity_type = $input.first().json.entity_type;\n\nfunction ensureArray(v) {\n  if (v == null) return [];\n  return Array.isArray(v) ? v : [v];\n}\n\nfunction pickInto(target, source, keys, rename = {}) {\n  for (const key of keys) {\n    if (source[key] != null && source[key] !== '') {\n      const outKey = rename[key] || key;\n      if (!target[outKey]) target[outKey] = [];\n      target[outKey].push(...ensureArray(source[key]));\n    }\n  }\n}\n\nconst general_info = {};\nconst sanctions = {};\nconst urls = {};\nconst relationships_info = {};\n\n// ==========================================\n// 1. Aleph\n// ==========================================\nif (entities.Aleph?.length > 0) {\n  general_info.aleph = {};\n  sanctions.aleph = {};\n  urls.aleph = { sourceUrl: [] };\n\n  entities.Aleph.forEach(item => {\n    const props = item.properties || {};\n    const top = item;\n    const rename = { collection_summary: 'summary' };\n    const commonKeys = ['name','country','website','sector','jurisdiction','permId','idNumber','alias','kppCode','ogrnCode','incorporationDate','address','status','legalForm','phone','innCode','taxNumber','collection_summary'];\n    \n    pickInto(general_info.aleph, top, commonKeys, rename);\n    pickInto(general_info.aleph, props, commonKeys, rename);\n    \n    const personKeys = ['birthDate','birthPlace','birthCountry','nationality','gender','citizenship','firstName','lastName','middleName','fatherName','secondName','position','education','religion','wikidataId'];\n    pickInto(general_info.aleph, props, personKeys);\n    \n    pickInto(sanctions.aleph, top, ['notes','topics']);\n    pickInto(sanctions.aleph, props, ['notes','topics']);\n    \n    if (Array.isArray(props.sanctions)) {\n      if (!sanctions.aleph.sanctions) sanctions.aleph.sanctions = [];\n      sanctions.aleph.sanctions.push(...props.sanctions);\n    }\n    \n    if (props.sourceUrl) urls.aleph.sourceUrl.push(...ensureArray(props.sourceUrl));\n    else if (top.sourceUrl) urls.aleph.sourceUrl.push(...ensureArray(top.sourceUrl));\n  });\n}\n\n// ==========================================\n// 2. OpenSanctions\n// ==========================================\nif (entities.OpenSanctions?.length > 0) {\n  general_info.open_sanctions = {};\n  sanctions.open_sanctions = {};\n  urls.open_sanctions = { sourceUrl: [] };\n\n  entities.OpenSanctions.forEach(item => {\n    const props = item.properties || {};\n    const commonKeys = ['name','jurisdiction','registrationNumber','incorporationDate','legalForm','address','phone','country','idNumber','website'];\n    pickInto(general_info.open_sanctions, props, commonKeys);\n    \n    const personKeys = ['birthDate','birthPlace','birthCountry','nationality','gender','citizenship','firstName','lastName','middleName','fatherName','secondName','position','education','religion','wikidataId','alias'];\n    pickInto(general_info.open_sanctions, props, personKeys);\n    \n    pickInto(sanctions.open_sanctions, props, ['notes','topics']);\n    if (Array.isArray(props.sanctions)) {\n      if (!sanctions.open_sanctions.sanctions) sanctions.open_sanctions.sanctions = [];\n      sanctions.open_sanctions.sanctions.push(...props.sanctions);\n    }\n    if (props.sourceUrl) urls.open_sanctions.sourceUrl.push(...ensureArray(props.sourceUrl));\n  });\n}\n\n// ==========================================\n// 3. OpenCorporates\n// ==========================================\nif (entities.OpenCorporates?.length > 0) {\n  general_info.open_corporates = {};\n  urls.open_corporates = { sourceUrl: [] };\n  \n  entities.OpenCorporates.forEach(item => {\n    const data = item.company || item.officer || item;\n    const rename = { company_number: 'registrationNumber', jurisdiction_code: 'jurisdiction', current_status: 'status', incorporation_date: 'incorporationDate', registered_address_in_full: 'address', company_type: 'legalForm', registry_url: 'sourceUrl' };\n    \n    pickInto(general_info.open_corporates, data, ['name', 'company_number', 'jurisdiction_code', 'incorporation_date', 'current_status', 'company_type', 'registered_address_in_full', 'industry_codes', 'dissolution_date'], rename);\n    \n    if (entity_type !== 'Company') pickInto(general_info.open_corporates, data, ['name', 'position', 'start_date', 'end_date', 'nationality', 'occupation'], rename);\n    \n    if (data.opencorporates_url) urls.open_corporates.sourceUrl.push(data.opencorporates_url);\n    if (data.registry_url) urls.open_corporates.sourceUrl.push(data.registry_url);\n  });\n}\n\n// ==========================================\n// 4. North Data (DETAIL UPDATE)\n// ==========================================\nif (entities.NorthData?.length > 0) {\n  general_info.north_data = {};\n  urls.north_data = { sourceUrl: [] };\n  const relations = {}; \n\n  entities.NorthData.forEach(item => {\n    // --- General Info ---\n    const rename = {\n        city: 'address', foundingDate: 'incorporationDate', date: 'incorporationDate',\n        registerId: 'registrationNumber', uid: 'taxNumber', vatId: 'taxNumber',\n        legalForm: 'legalForm', status: 'status', email: 'email', phone: 'phone', url: 'website'\n    };\n    const companyKeys = [\n        'name', 'city', 'address', 'zipCode', 'foundingDate', 'date',\n        'registerId', 'legalForm', 'status', 'email', 'phone', 'vatId'\n    ];\n    \n    // 1. Извлекаем originalSubject (ПО ВАШЕМУ ЗАПРОСУ)\n    if (item.originalSubject) {\n        if (!general_info.north_data.originalSubject) general_info.north_data.originalSubject = [];\n        general_info.north_data.originalSubject.push(item.originalSubject);\n    }\n\n    // 2. Обработка имени\n    if (item.name && typeof item.name === 'object' && item.name.name) {\n        if (!general_info.north_data.name) general_info.north_data.name = [];\n        general_info.north_data.name.push(item.name.name);\n    } else {\n        pickInto(general_info.north_data, item, ['name'], rename);\n    }\n\n    pickInto(general_info.north_data, item, companyKeys, rename);\n\n    // 3. Адрес основного объекта\n    if (item.address && typeof item.address === 'object') {\n        const a = item.address;\n        const fullAddr = a.formattedValue || [a.street, a.postalCode, a.city, a.country].filter(Boolean).join(', ');\n        if (fullAddr) {\n             if (!general_info.north_data.address) general_info.north_data.address = [];\n             general_info.north_data.address.push(fullAddr);\n        }\n    }\n\n    if (item.northDataUrl) urls.north_data.sourceUrl.push(item.northDataUrl);\n\n    // --- RELATIONSHIPS (DETAILED) ---\n    // Функция для создания детального объекта связи\n    const addRel = (category, relObj) => {\n        if (!relations[category]) relations[category] = [];\n        \n        // Сущность может быть компанией или персоной\n        const ent = relObj.company || relObj.person || {};\n        \n        // A. Name & Legal Form\n        let nameVal = \"Unknown\";\n        let lfVal = \"\";\n        \n        if (ent.name && typeof ent.name === 'object') {\n            nameVal = ent.name.name || \"\";\n            lfVal = ent.name.legalForm || \"\";\n        } else if (ent.name) {\n            nameVal = ent.name;\n        } else if (ent.firstName || ent.lastName) {\n            nameVal = [ent.title, ent.firstName, ent.lastName].filter(Boolean).join(' ');\n        }\n\n        // B. Address (используем formattedValue если есть)\n        let addrVal = \"\";\n        if (ent.address && typeof ent.address === 'object') {\n            addrVal = ent.address.formattedValue || [ent.address.street, ent.address.city, ent.address.country].filter(Boolean).join(', ');\n        } else if (typeof ent.address === 'string') {\n            addrVal = ent.address;\n        }\n\n        // C. Roles\n        let rolesVal = relObj.description || \"\";\n        if (Array.isArray(relObj.roles) && relObj.roles.length > 0) {\n            // Собираем типы ролей через запятую\n            const rolesList = relObj.roles.map(r => r.name || r.type).filter(Boolean);\n            if (rolesList.length > 0) rolesVal = rolesList.join(', ');\n        }\n        if (!rolesVal) rolesVal = \"Related\";\n\n        // Собираем объект\n        const relEntry = {\n            name: nameVal,\n            role: rolesVal,\n            status: ent.status || \"Unknown\",\n            legalForm: lfVal,\n            address: addrVal,\n            northDataUrl: ent.northDataUrl || \"\"\n        };\n\n        relations[category].push(relEntry);\n    };\n\n    // Собираем компании\n    if (item.relatedCompanies && Array.isArray(item.relatedCompanies.items)) {\n        item.relatedCompanies.items.forEach(rel => {\n            const desc = (rel.description || \"\").toLowerCase();\n            let cat = 'related_companies';\n            if (desc.includes('parent') || desc.includes('owner') || desc.includes('shareholder')) cat = 'shareholders_parents';\n            else if (desc.includes('subsidiary') || desc.includes('child')) cat = 'subsidiaries';\n            addRel(cat, rel);\n        });\n    }\n\n    // Собираем персон\n    if (item.relatedPersons && Array.isArray(item.relatedPersons.items)) {\n        item.relatedPersons.items.forEach(rel => {\n            addRel('management_and_owners', rel);\n        });\n    }\n  });\n\n  if (Object.keys(relations).length > 0) {\n      relationships_info.north_data = relations;\n  }\n}\n\n// Cleanup\nfor (const dict of [general_info, sanctions, urls, relationships_info]) {\n  for (const k of Object.keys(dict)) {\n    if (!dict[k] || Object.keys(dict[k]).length === 0) {\n      delete dict[k];\n    }\n  }\n}\n\nreturn [{\n  json: {\n    split_entities: {\n      split_general_info_entities: general_info,\n      split_sanctions_entities: sanctions,\n      split_urls_entities: urls,\n      split_relationships_entities: relationships_info\n    },\n    entity_type\n  }\n}];\n"
+      },
+      "id": "7ebe479f-fe1c-4d0f-a3ab-6e203ad254ed",
+      "name": "Split Properties1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://aleph.occrp.org/api/2/entities",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.target_name }}"
+            },
+            {
+              "name": "limit",
+              "value": "5"
+            },
+            {
+              "name": "filter:countries",
+              "value": "={{ $json.country.toLowerCase() }}"
+            },
+            {
+              "name": "filter:schemata",
+              "value": "={{ $json.entity_type }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "ApiKey 9F9LazPqvHWZVwFdwMr3u7GUwUqDhbH4DfYp6fzJ"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "0f87ff94-b6ac-4a24-86fc-1e8bc688e891",
+      "name": "Aleph Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -2560,
+        -64
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.opensanctions.org/match/default",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "algorithm",
+              "value": "best"
+            },
+            {
+              "name": "fuzzy",
+              "value": "false"
+            },
+            {
+              "name": "nested",
+              "value": "true"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "ApiKey ecad0045f73df85366066c16fc93f8e1"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"queries\": {\n    \"query\": {\n      \"schema\": \"{{ $json.entity_type }}\",\n      \"properties\": {\n        \"name\": \"{{ $json.target_name }}\",\n        \"country\": \"{{ $json.country }}\"\n      }\n    }\n  }\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "92ad7a9c-70ce-42c2-bb60-b2fe7a99d118",
+      "name": "OpenSanctions Match",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -2560,
+        320
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "functionCode": "const items = $input.first().json.results || [];\n// const jurisdiction_code = $('Prepare Data').first().json.country;\n\n// function has_jurisdiction(item, code) {\n//   const country = item.country;\n//   const jurisdiction = item.jurisdiction;\n  \n//   if (!country && !jurisdiction) return true;\n  \n//   if (Array.isArray(country)) {\n//     return country.some(c => c.toLowerCase() === code.toLowerCase());\n//   } else if (country) {\n//     if (country.toLowerCase() === code.toLowerCase()) return true;\n//   }\n  \n//   if (Array.isArray(jurisdiction)) {\n//     return jurisdiction.some(j => j.toLowerCase() === code.toLowerCase());\n//   } else if (jurisdiction) {\n//     return jurisdiction.toLowerCase() === code.toLowerCase();\n//   }\n  \n//   return false;\n// }\n\n// const filtered = items.filter(item => has_jurisdiction(item, jurisdiction_code));\nreturn [{ json: { aleph_data: [items] } }];"
+      },
+      "id": "9da374dd-3f97-4b28-a18c-190cc1f1e21d",
+      "name": "Filter Aleph",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -2336,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const responses = $input.first().json.responses;\nconst results = responses?.query?.results || [];\n\nif (results.length === 0) {\n  return [{ json: { opensanctions_data: false } }];\n}\n\nconst entityId = results[0].id;\nreturn [{ json: { entity_id: entityId,\n                opensanctions_data: true} }];"
+      },
+      "id": "3c6ba999-5dbc-4537-ac66-ba0a3860f420",
+      "name": "Extract OpenSanctions",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -2368,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.opensanctions.org/entities/{{ $json.entity_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "ApiKey ecad0045f73df85366066c16fc93f8e1"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "58e1e2ec-738d-437d-a32b-89351f1ca52c",
+      "name": "OpenSanctions Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -2032,
+        96
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "functionCode": "const entity = $input.first().json;\nreturn [{ json: { opensanctions_data: [entity] } }];"
+      },
+      "id": "d8b65a6f-2cd2-40ac-92a1-d97addf7295c",
+      "name": "Format OpenSanctions",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1840,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function uniq(arr) {\n  const seen = new Set();\n  const out = [];\n  for (const v of (arr || [])) {\n    const x = typeof v === 'string' ? v.trim() : v;\n    const key = typeof x === 'string' ? x.toLowerCase() : JSON.stringify(x);\n    if (!seen.has(key)) { seen.add(key); out.push(x); }\n  }\n  return out;\n}\n\nfunction normCountry(arr) {\n  return uniq((arr || []).map(c => typeof c === 'string' ? c.trim().toUpperCase() : c));\n}\n\nfunction dedupDict(dict, normalizeCountry=false) {\n  for (const k of Object.keys(dict)) {\n    if (k === 'sanctions') continue; // объектные санкции не трогаем\n    dict[k] = (normalizeCountry && k === 'country') ? normCountry(dict[k]) : uniq(dict[k]);\n  }\n}\n\nfunction capArrays(dict, cap=50) {\n  for (const k of Object.keys(dict)) {\n    if (Array.isArray(dict[k]) && dict[k].length > cap) dict[k] = dict[k].slice(0, cap);\n  }\n}\n\nfunction removeEmptySources(dict) {\n  for (const k of Object.keys(dict)) {\n    if (!dict[k] || Object.keys(dict[k]).length === 0) delete dict[k];\n  }\n}\n\nfunction trimLongText(arr, maxLen=1500) {\n  return (arr || []).map(v => typeof v === 'string' && v.length > maxLen ? (v.slice(0, maxLen) + '…') : v);\n}\n\nfunction reorder(obj, order) {\n  const out = {};\n  for (const k of order) if (k in obj) out[k] = obj[k];\n  for (const k of Object.keys(obj)) if (!(k in out)) out[k] = obj[k];\n  return out;\n}\n\nconst split = $json.split_entities;\n\n// 1) Дедуп + нормализация стран\nfor (const src of ['aleph','open_sanctions']) {\n  if (split.split_general_info_entities[src]) dedupDict(split.split_general_info_entities[src], true);\n  if (split.split_sanctions_entities[src]) dedupDict(split.split_sanctions_entities[src], false);\n  if (split.split_urls_entities[src]) dedupDict(split.split_urls_entities[src], false);\n}\n\n// 2) Обрезка длинных notes\nfor (const src of ['aleph','open_sanctions']) {\n  const sanc = split.split_sanctions_entities[src];\n  if (sanc?.notes) sanc.notes = trimLongText(sanc.notes, 1500);\n}\n\n// 3) Лимиты на длину массивов (LLM-friendly)\nfor (const src of ['aleph','open_sanctions']) {\n  if (split.split_general_info_entities[src]) capArrays(split.split_general_info_entities[src], 50);\n  if (split.split_sanctions_entities[src]) capArrays(split.split_sanctions_entities[src], 50);\n  if (split.split_urls_entities[src]) capArrays(split.split_urls_entities[src], 50);\n}\n\n// 4) Удаляем пустые источники\nremoveEmptySources(split.split_general_info_entities);\nremoveEmptySources(split.split_sanctions_entities);\nremoveEmptySources(split.split_urls_entities);\n\n// 5) (опционально) Стабилизируем порядок ключей для Aleph\nif (split.split_general_info_entities.aleph) {\n  split.split_general_info_entities.aleph = reorder(\n    split.split_general_info_entities.aleph,\n    [\n      'name','alias','firstName','lastName','middleName','fatherName','secondName',\n      'birthDate','birthPlace','birthCountry','nationality','citizenship','gender',\n      'position','education','religion','wikidataId','country','address','phone',\n      'website','idNumber','registrationNumber','jurisdiction','incorporationDate',\n      'dissolutionDate','status','legalForm','sector','permId','innCode','ogrnCode',\n      'kppCode','taxNumber','summary'\n    ]\n  );\n}\n\nreturn [{ json: $json }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -464,
+        48
+      ],
+      "id": "999fc1a9-f71f-488a-9e11-c812a15cef0d",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Provide me valid JSON output. Combine all the information from the following JSON data {{ JSON.stringify($('Code').first().json.split_entities.split_general_info_entities) }} into a single JSON object that follows the FollowTheMoney format. Remove all hash ids. Ensure that all details from each JSON are included, all information from each JSON is saved. Preserve the source links for each detail. The resulting JSON should be syntactically correct. Return only the resulting JSON object without any additional text or comments outside the JSON. "
+            },
+            {
+              "content": "Provide output in valid JSON",
+              "role": "system"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        800,
+        -224
+      ],
+      "id": "9320b623-187d-462c-9020-b0af5951d1f3",
+      "name": "General info",
+      "credentials": {
+        "openAiApi": {
+          "id": "MdDNx8OT5GBV3CGg",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Provide me valid JSON output. Combine all the information from the following JSON data {{ JSON.stringify($('Code').first().json.split_entities.split_sanctions_entities) }} into a single JSON object that follows the FollowTheMoney format. Remove all hash ids. Ensure that all details from each JSON are included, all information from each JSON is saved. Preserve the source links for each detail. The resulting JSON should be syntactically correct. Return only the resulting JSON object without any additional text or comments outside the JSON. "
+            },
+            {
+              "content": "Provide output in valid JSON",
+              "role": "system"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        800,
+        -32
+      ],
+      "id": "126ffe14-5e73-45c0-b53f-dde9d1bb296d",
+      "name": "Sanctions",
+      "credentials": {
+        "openAiApi": {
+          "id": "MdDNx8OT5GBV3CGg",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Provide me valid JSON output. Combine all the information from the following JSON data {{ JSON.stringify($('Code').first().json.split_entities.split_urls_entities) }} into a single JSON object that follows the FollowTheMoney format. Remove all hash ids. Ensure that all details from each JSON are included, all information from each JSON is saved. Preserve the source links for each detail. The resulting JSON should be syntactically correct. Return only the resulting JSON object without any additional text or comments outside the JSON. "
+            },
+            {
+              "content": "Provide output in valid JSON",
+              "role": "system"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        800,
+        144
+      ],
+      "id": "b6fbf989-d1c2-4a0e-9a85-f285df790b08",
+      "name": "URLs",
+      "credentials": {
+        "openAiApi": {
+          "id": "MdDNx8OT5GBV3CGg",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Provide me valid JSON output. Combine all the information from the following JSON data into a single JSON object that follows the FollowTheMoney format. Remove all hash ids. Ensure that all details from each JSON are included, all information from each JSON is saved. Preserve the source links for each detail. The resulting JSON should be syntactically correct. Return only the resulting JSON object without any additional text or comments outside the JSON. {{ JSON.stringify($('Code').first().json.split_entities.split_relationships_entities) }}"
+            },
+            {
+              "content": "Provide output in valid JSON",
+              "role": "system"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        800,
+        304
+      ],
+      "id": "9e341d14-69b0-4bcc-bd23-509bd556aab0",
+      "name": "Relationships",
+      "credentials": {
+        "openAiApi": {
+          "id": "MdDNx8OT5GBV3CGg",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.2",
+          "mode": "list",
+          "cachedResultName": "GPT-5.2"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.data }}"
+            },
+            {
+              "content": "={{ $json.prompt }}",
+              "role": "system"
+            }
+          ]
+        },
+        "simplify": false,
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1984,
+        48
+      ],
+      "id": "a45d89b1-8e17-4a12-a17a-0ca85971cf2e",
+      "name": "Relationships1",
+      "credentials": {
+        "openAiApi": {
+          "id": "MdDNx8OT5GBV3CGg",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1) Берём сырое значение из разных типичных мест\nconst raw =\n  $input.first()?.json?.message?.content ??\n  $json?.message?.content ??\n  $input.first()?.json ??\n  null;\n\n// 2) Аккуратный многошаговый парсер без \"ломающих\" замен\nfunction deepParse(value, maxPasses = 6) {\n  let v = value;\n\n  // убираем BOM, если вдруг есть\n  const stripBOM = s => (typeof s === 'string' ? s.replace(/^\\uFEFF/, '') : s);\n\n  for (let i = 0; i < maxPasses; i++) {\n    if (v && typeof v === 'object') return v;\n    if (typeof v !== 'string') return v;\n\n    let s = stripBOM(v).trim();\n\n    // если это строковый JSON (в кавычках) — сначала распакуем строку\n    if ((s.startsWith('\"') && s.endsWith('\"'))) {\n      try {\n        v = JSON.parse(s); // превращаем в обычную строку\n        continue;          // и идём на следующий проход\n      } catch (e) {\n        // падать не спешим — попробуем почистить управ.символы\n      }\n    }\n\n    // попытка парсить как объект/массив и т.п.\n    try {\n      v = JSON.parse(s);\n      continue;\n    } catch (e1) {\n      // НЕ делаем \\\\n -> \\n и т.п. — это и ломало JSON ранее!\n\n      // Попытка 2: экранировать СЫРЫЕ управляющие символы (0x00–0x1F), если они затесались\n      // Это безопасно: мы не изменяем уже корректные \\n, \\t, т.п., а только реальные ctrl-символы\n      const sanitized = s.replace(/[\\u0000-\\u001F]/g, ch => {\n        const code = ch.charCodeAt(0).toString(16).padStart(2, '0');\n        return '\\\\u00' + code;\n      });\n\n      // Попытка 3: починить ОДИНОЧНЫЕ обратные слеши, не образующие валидный escape\n      // Пример: \"C:\\path\\to\\file\" -> \"C:\\\\path\\\\to\\\\file\"\n      // Регекс находит '\\', за которым НЕ идёт один из допустимых esc: [\"\\/bfnrtu]\n      const fixedBackslashes = sanitized.replace(/\\\\(?![\"\\/bfnrtu])/g, '\\\\\\\\');\n\n      try {\n        v = JSON.parse(fixedBackslashes);\n        continue;\n      } catch (e2) {\n        // Попытка 4: если это на самом деле \"строка-JSON\", попробуем распаковать как строку, а затем ещё раз\n        try {\n          const asString = JSON.parse('\"' + fixedBackslashes.replace(/\"/g, '\\\\\"') + '\"');\n          v = asString;\n          continue;\n        } catch (e3) {\n          throw new Error('Failed to parse JSON content: ' + e2.message);\n        }\n      }\n    }\n  }\n  return v;\n}\n\nconst parsed = deepParse(raw);\n\n// 3) Валидация: не зажимайся только под {schema, properties},\n// т.к. иногда приходит массив или другая форма.\nif (\n  !parsed ||\n  (typeof parsed !== 'object') ||\n  (Array.isArray(parsed) ? parsed.length === 0 : false)\n) {\n  // Либо просто возвращай как есть, либо бросай мягкую ошибку\n  // throw new Error('Unexpected JSON shape');\n}\n\n// Вернём как есть — дальше по пайплайну уже решишь, как нормализовать\nreturn [{ json: parsed }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2416,
+        48
+      ],
+      "id": "bb0a0172-2584-4801-8132-3af45fa9b5e6",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "90d2d494-e2a4-4986-aec6-3b15a691f3e1",
+              "leftValue": "={{ $json.split_entities.split_relationships_entities }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        352
+      ],
+      "id": "e1215218-38aa-4e49-ac5f-1d82b6edd8ca",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1552,
+        16
+      ],
+      "id": "688fe290-6d59-43be-92cd-fb1297bbee69",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// const general_info = JSON.parse($('General info').first().json.message.content) || {};\n// const sanctions = JSON.parse($('Sanctions').first().json.message.content) || {};\n// const urls = JSON.parse($('URLs').first().json.message.content) || {};\nconst contents = $input\n  .all()                                      // берём все входящие элементы\n  .map(item => item.json?.choices?.[0]?.message?.content)   // вытаскиваем текст ответа$input.first().json.choices[0].message.content\n  .filter(Boolean);\nconst entity_type = $('Code').first().json.entity_type;\n\nconst final_prompt = entity_type === \"Person\" ? \n  `Combine the following JSON objects into a single comprehensive JSON object that follows the FollowTheMoney format. Remove all hash ids. Ensure that all details from each JSON are included, all information from each JSON is saved, and remove any duplicate details. Preserve the source links for each detail. The resulting JSON should be syntactically correct. Return only the resulting JSON object without any additional text or comments outside the JSON. Use the following schema in JSON object:\n  {\n    \"schema\": \"Person\",\n    \"properties\": {\n      \"name\": [], \"birthDate\": [], \"nationality\": [], \"birthplace\": [], \"address\": [], \"idNumber\":[], \"country\":[], \"position\":[], \"education\":[], \"gender\": [], \"birthCountry\": [], \"alias\": [], \"innCode\": [], \"registrationNumber\": [], \"status\": [], \"legalForm\": [], \"incorporationDate\": [], \"dissolutionDate\": [], \"relationships\": [], \"notes\": [], \"summary\":[], \"sanctions\": []\n    }\n  }\n  Additionally, if any of the input JSONs contain a field called \"sanctions\" (including nested objects), include it in the resulting JSON as-is, preserving all nested structure and details.` :\n  `Combine the following JSON objects into a single comprehensive JSON object that follows the FollowTheMoney format. Remove all hash ids. Ensure that all details from each JSON are included, all information from each JSON is saved, and remove any duplicate details. Preserve the source links for each detail. The resulting JSON should be syntactically correct. Return only the resulting JSON object without any additional text or comments outside the JSON.  Use the following schema in JSON object:\n  {\n    \"schema\": \"Company\",\n    \"properties\": {\n      \"name\": [], \"registrationNumber\": [], \"jurisdiction\": [], \"incorporationDate\": [], \"dissolutionDate\": [], \"legalForm\": [], \"status\": [], \"address\": [], \"sector\": [], \"publisher\": [], \"phone\": [], \"country\": [], \"idNumber\": [], \"website\": [], \"permId\": [], \"alias\": [], \"kppCode\": [], \"ogrnCode\": [], \"innCode\": [], \"taxNumber\": [], \"notes\": [], \"topics\": [], \"sourceUrl\": [], \"summary\": []\n    }\n  }\n  Additionally, if any of the input JSONs contain a field called \"sanctions\" (including nested objects), include it in the resulting JSON as-is, preserving all nested structure and details.`;\n\nreturn [{\n  json: {\n    prompt: final_prompt,\n    data: contents.join('\\n\\n') \n      // `${JSON.stringify(general_info)}\\n${JSON.stringify(sanctions)}\\n${JSON.stringify(urls)}\\n${JSON.stringify(relationships)}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        48
+      ],
+      "id": "d4c75f21-b927-48b2-8640-c11682e3cd42",
+      "name": "Code4"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"target_name\": null,\n  \"entity_type\": null,\n  \"country\": null\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2960,
+        48
+      ],
+      "id": "2ac8e994-d40b-400b-ba4f-45b64bfc6acb",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "=target_name",
+              "value": "Alaudinov Apti Aronovich"
+            },
+            {
+              "name": "entity_type",
+              "value": "Person"
+            },
+            {
+              "name": "=country",
+              "value": "=RU"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "52c7c0a1-b905-4264-a8da-3d058e9c3c70",
+      "name": "Prepare Data_",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -2800,
+        -432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawType = ($json.entity_type || '').toString().trim().toLowerCase();\n\nlet entityType;\nif (['company', 'org', 'organisation', 'organization', 'business', 'firm'].includes(rawType)) {\n  entityType = 'Company';\n} else if (['person', 'human', 'individual', 'people'].includes(rawType)) {\n  entityType = 'Person';\n} else if (rawType === 'company' || rawType === 'person') {\n  entityType = rawType[0].toUpperCase() + rawType.slice(1);\n} else {\n  // дефолт, если не распознали\n  entityType = 'Person';\n}\n\nconst country = (($json.country || 'RU') + '').toUpperCase();\n\nreturn [{\n  json: {\n    target_name: $input.first().json.target_name,\n    entity_type: entityType,\n    country\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2768,
+        48
+      ],
+      "id": "cbad346f-2d7a-4e83-b9a6-2652b861421a",
+      "name": "Prepare Data"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1168,
+        48
+      ],
+      "id": "a229dec1-cd8b-44ed-931f-e1cfc4ccae6c",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "50078368-48da-49d3-8390-ba267800dbff",
+              "leftValue": "={{ $json.opensanctions_data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2224,
+        320
+      ],
+      "id": "aa661225-36a9-45f0-8de1-23bbce26bb9a",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Собираем ВСЕ входные items\nconst items = $input.all();\n\nfunction collectArray(key) {\n  const out = [];\n  for (const it of items) {\n    const j = it?.json ?? {};\n    // Иногда данные могут лежать глубже: json.data.opensanctions_data\n    const v = j[key] ?? j.data?.[key];\n    if (Array.isArray(v)) out.push(...v);\n    else if (v != null) out.push(v);\n  }\n  return out;\n}\n\nconst aleph = collectArray('aleph_data');\nconst opensanctions = collectArray('opensanctions_data');\nconst opencorporates = collectArray('opencorporates_data');\nconst northdata = collectArray('northdata_data');\n\nconst prep = $('Prepare Data').first()?.json ?? {};\n\nreturn [{\n  json: {\n    entities: {\n      Aleph: aleph,\n      OpenSanctions: opensanctions,\n      OpenCorporates: opencorporates,\n      NorthData: northdata\n    },\n    entity_type: prep.entity_type ?? null,\n    target_name: prep.target_name ?? null\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -960,
+        48
+      ],
+      "id": "48c49f97-985e-4ce0-821e-e120d4c8f871",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "90d2d494-e2a4-4986-aec6-3b15a691f3e1",
+              "leftValue": "={{ $json.split_entities.split_urls_entities }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        192
+      ],
+      "id": "4de62ad3-ae74-4185-9941-c17a6491acf2",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "90d2d494-e2a4-4986-aec6-3b15a691f3e1",
+              "leftValue": "={{ $json.split_entities.split_sanctions_entities }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        32
+      ],
+      "id": "1c9ebdf3-bad5-48c7-bb25-c354a390f143",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "90d2d494-e2a4-4986-aec6-3b15a691f3e1",
+              "leftValue": "={{ $json.split_entities.split_general_info_entities }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        -144
+      ],
+      "id": "93e38247-92e0-41fa-8846-fc51c9c5a696",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const falseAnsw = \n  {\n    \"index\": 0,\n    \"message\": {\n      \"role\": \"assistant\",\n      \"content\": \"{}\",\n      \"refusal\": null,\n      \"annotations\": []\n    },\n    \"logprobs\": null,\n    \"finish_reason\": \"stop\"\n  }\n\nreturn falseAnsw"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        416
+      ],
+      "id": "30a461c8-abb9-415e-a443-d7f1ef142f64",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const falseAnsw = \n  {\n    \"index\": 0,\n    \"message\": {\n      \"role\": \"assistant\",\n      \"content\": \"{}\",\n      \"refusal\": null,\n      \"annotations\": []\n    },\n    \"logprobs\": null,\n    \"finish_reason\": \"stop\"\n  }\n\nreturn falseAnsw"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        224
+      ],
+      "id": "ac6f4073-0fce-43ab-b025-da90598292a1",
+      "name": "Code5"
+    },
+    {
+      "parameters": {
+        "jsCode": "const falseAnsw = \n  {\n    \"index\": 0,\n    \"message\": {\n      \"role\": \"assistant\",\n      \"content\": \"{}\",\n      \"refusal\": null,\n      \"annotations\": []\n    },\n    \"logprobs\": null,\n    \"finish_reason\": \"stop\"\n  }\n\nreturn falseAnsw"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        48
+      ],
+      "id": "066c46b4-8611-42fe-9d9f-5d3a680dc698",
+      "name": "Code6"
+    },
+    {
+      "parameters": {
+        "jsCode": "const falseAnsw = \n  {\n    \"index\": 0,\n    \"message\": {\n      \"role\": \"assistant\",\n      \"content\": \"{}\",\n      \"refusal\": null,\n      \"annotations\": []\n    },\n    \"logprobs\": null,\n    \"finish_reason\": \"stop\"\n  }\n\nreturn falseAnsw"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        -144
+      ],
+      "id": "7042e80b-2518-41cc-87c9-1e39f37f0a5b",
+      "name": "Code7"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2944,
+        1216
+      ],
+      "id": "3957bc12-a665-4049-b86a-8783c3e88301",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://app.slack.com/client/T0A4FM63WF8/C0A4ECU3MMK",
+          "__regex": "https://app.slack.com/client/.*/([a-zA-Z0-9]{2,})"
+        },
+        "text": "={{ $json.error.message }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -2336,
+        96
+      ],
+      "id": "85bc3b22-617f-4b23-80b7-560a6945940c",
+      "name": "Send a message",
+      "webhookId": "d6ad2b18-9b63-4d83-bc27-566bf009d72a",
+      "credentials": {
+        "slackApi": {
+          "id": "ju9N5H9QJ9swhxHt",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://app.slack.com/client/T0A4FM63WF8/C0A4ECU3MMK",
+          "__regex": "https://app.slack.com/client/.*/([a-zA-Z0-9]{2,})"
+        },
+        "text": "={{ $json.error.message }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -2352,
+        496
+      ],
+      "id": "fe705525-98d4-4537-a4dd-e327b55c7859",
+      "name": "Send a message1",
+      "webhookId": "d6ad2b18-9b63-4d83-bc27-566bf009d72a",
+      "credentials": {
+        "slackApi": {
+          "id": "ju9N5H9QJ9swhxHt",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "https://app.slack.com/client/T0A4FM63WF8/C0A4G4P9C5U",
+          "mode": "url"
+        },
+        "text": "={{ $json.workflow.name }}{{ $json.execution.url }}{{ $json.execution.error.message }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -2720,
+        1216
+      ],
+      "id": "96ce907f-bafb-4121-bba6-dbfe762a04e7",
+      "name": "Send a message2",
+      "webhookId": "d6ad2b18-9b63-4d83-bc27-566bf009d72a",
+      "credentials": {
+        "slackApi": {
+          "id": "ju9N5H9QJ9swhxHt",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.opencorporates.com/v0.4/companies/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.target_name }}"
+            },
+            {
+              "name": "jurisdiction_code",
+              "value": "={{ $json.country.toLowerCase() }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "ca32b3c8-6b8e-4daf-90b5-9392393bfebd",
+      "name": "OpenCorporates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -2336,
+        -512
+      ],
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "VmNZiSJQNcz1BJU2",
+          "name": "Query Auth account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://api.opencorporates.com/v0.4/officers/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.target_name }}"
+            },
+            {
+              "name": "jurisdiction_code",
+              "value": "={{ $json.country.toLowerCase() }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "b959f905-307c-491e-8db0-bfa5c0d37983",
+      "name": "OpenCorporates1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -2336,
+        -240
+      ],
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "VmNZiSJQNcz1BJU2",
+          "name": "Query Auth account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5a6b7ff6-3f65-4aca-a37a-84e813038959",
+              "leftValue": "={{ $json.entity_type }}",
+              "rightValue": "Company",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2544,
+        -368
+      ],
+      "id": "81afe4bd-afd8-4d0b-94a0-2e68ee7b5beb",
+      "name": "Check entity type"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://app.slack.com/client/T0A4FM63WF8/C0A4ECU3MMK",
+          "__regex": "https://app.slack.com/client/.*/([a-zA-Z0-9]{2,})"
+        },
+        "text": "={{ $json.error.message }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -2096,
+        -144
+      ],
+      "id": "87f63773-ade9-4928-848e-ae6cc6e55da2",
+      "name": "Send a message4",
+      "webhookId": "d6ad2b18-9b63-4d83-bc27-566bf009d72a",
+      "credentials": {
+        "slackApi": {
+          "id": "ju9N5H9QJ9swhxHt",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\n\n// В ответе API массив лежит в results.officers (а не companies)\nconst matches = response.results?.officers || [];\n\nif (matches.length === 0) {\n  return [{ json: { opencorporates_found: false } }];\n}\n\n// Берем первый результат\nconst bestMatch = matches[0].officer;\n\nreturn [{\n  json: {\n    // Данные самого человека\n    target_name: bestMatch.name,\n    officer_id: bestMatch.id,           // ЭТОТ ID нужен для следующего запроса\n    position: bestMatch.position,       // Должность (если есть)\n    \n    // Данные связанной компании (чтобы понимать, где он работает)\n    company_name: bestMatch.company.name,\n    company_jurisdiction: bestMatch.company.jurisdiction_code,\n    company_number: bestMatch.company.company_number,\n    \n    opencorporates_found: true\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2096,
+        -288
+      ],
+      "id": "c7d7d31f-3965-40a3-9dbb-607b42ff5628",
+      "name": "Extract officer",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://app.slack.com/client/T0A4FM63WF8/C0A4ECU3MMK",
+          "__regex": "https://app.slack.com/client/.*/([a-zA-Z0-9]{2,})"
+        },
+        "text": "={{ $json.error.message }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -2096,
+        -448
+      ],
+      "id": "5b5e23bd-8024-4c05-8ab1-2e6d1fd29e75",
+      "name": "Send a message3",
+      "webhookId": "d6ad2b18-9b63-4d83-bc27-566bf009d72a",
+      "credentials": {
+        "slackApi": {
+          "id": "ju9N5H9QJ9swhxHt",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Получаем ответ от предыдущей ноды (HTTP Request)\nconst response = $input.first().json;\n\n// У OpenCorporates массив совпадений лежит в results.companies\n// Важно: если вы искали Person, то путь будет results.officers\nconst matches = response.results?.companies || [];\n\n// Если массив пуст — возвращаем флаг false\nif (matches.length === 0) {\n  return [{\n    json: {\n      opencorporates_found: false\n    }\n  }];\n}\n\n// Берем первый (наиболее релевантный) результат\n// В массиве OpenCorporates каждый элемент обернут в объект \"company\"\nconst bestMatch = matches[0].company;\n\n// Возвращаем чистые данные для следующего шага\nreturn [{\n  json: {\n    target_name: bestMatch.name,\n    company_number: bestMatch.company_number,     // Нужно для запроса деталей\n    jurisdiction_code: bestMatch.jurisdiction_code, // Нужно для запроса деталей\n    status: bestMatch.current_status,\n    opencorporates_url: bestMatch.opencorporates_url,\n    opencorporates_found: true\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2096,
+        -592
+      ],
+      "id": "bcae4c3d-5111-46d5-b6f0-8c01922ae8de",
+      "name": "Extract company",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.opencorporates.com/v0.4/companies/{{ $json.jurisdiction_code }}/{{ $json.company_number }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "8f942a45-23a5-4072-8caf-e0a0821838f9",
+      "name": "OpenCorporates2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -1760,
+        -464
+      ],
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "VmNZiSJQNcz1BJU2",
+          "name": "Query Auth account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "functionCode": "const response = $input.first().json;\n\n// Вместо всего объекта берем только то, что лежит внутри results.company\n// Если вдруг придет офицер, добавляем проверку || response.results?.officer\nconst cleanEntity = response.results?.company || response.results?.officer || {};\n\nreturn [{\n  json: {\n    // Теперь здесь лежит \"чистый\" объект без api_version и results\n    opencorporates_data: [cleanEntity]\n  }\n}];"
+      },
+      "id": "34f3afd6-7164-49ff-8f78-e9b9aa4182b3",
+      "name": "Format OpenSanctions1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1536,
+        -256
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Получаем ответ от поиска\nconst response = $input.first().json;\n\n// Нормализуем массив результатов\n// North Data иногда возвращает массив в корне, иногда в объекте\nconst rawResults = Array.isArray(response) ? response : (response.results || []);\n\n// Если пришел массив с вложенностью (как в вашем примере: [ { results: [...] } ])\n// То нужно достать results из первого элемента\nlet items = [];\nif (rawResults.length > 0 && rawResults[0].results) {\n    items = rawResults[0].results; \n} else {\n    items = rawResults;\n}\n\nif (!items || items.length === 0) {\n    return [{ json: { northdata_found: false } }];\n}\n\n// Берем первый результат\nconst bestMatch = items[0];\nconst company = bestMatch.company || bestMatch;\n\n// Извлекаем нужные идентификаторы\n// 1. Приоритет: registerKey\nconst regKey = company.register?.uniqueKey;\n\n// 2. Если нет ключа - берем Имя и Город\nconst name = company.name?.name || company.rawName;\nconst city = company.address?.city;\n\n// 3. Резерв: внутренний ID (на случай если первые два не сработают)\nconst internalId = company.id;\n\nreturn [{\n    json: {\n        northdata_found: true,\n        // Выходные параметры для следующего запроса\n        use_key: !!regKey,\n        target_register_key: regKey,\n        \n        target_name: name,\n        target_city: city,\n        \n        target_id: internalId, // На всякий случай\n        \n        // Мета-инфо\n        status: company.status\n    }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2304,
+        656
+      ],
+      "id": "1ff4e6fe-a809-434c-88c4-cc297cc0f166",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "https://www.northdata.com/_api/search/v1/universal",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.target_name }}"
+            },
+            {
+              "name": "countries",
+              "value": "={{ $json.country }}"
+            },
+            {
+              "name": "domain",
+              "value": "={{ $json.entity_type.toLowerCase() }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "f5079aa3-673d-4051-a7af-1c28576aec99",
+      "name": "NorthData",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -2560,
+        672
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "TzlSC9nQ6T1Nww21",
+          "name": "Header Auth account 5"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://www.northdata.com/_api/company/v1/company",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "registerKey",
+              "value": "={{ $json.target_register_key }}"
+            },
+            {
+              "name": "representatives",
+              "value": "true"
+            },
+            {
+              "name": "owners",
+              "value": "true"
+            },
+            {
+              "name": "relations",
+              "value": "true"
+            },
+            {
+              "name": "extras",
+              "value": "true"
+            },
+            {
+              "name": "name",
+              "value": "={{ $json.target_name }}"
+            },
+            {
+              "name": "adress",
+              "value": "={{ $json.target_city }}"
+            },
+            {
+              "name": "companyId",
+              "value": "={{ $json.target_id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "5c50cec3-74c6-4d8e-96d4-b61f66a4b49b",
+      "name": "NortData Detailed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -2080,
+        528
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "TzlSC9nQ6T1Nww21",
+          "name": "Header Auth account 5"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "functionCode": "const entity = $input.first().json;\nreturn [{ json: { northdata_data: [entity] } }];"
+      },
+      "id": "be521e92-7eaf-4c3c-a7f8-9c5bb2204927",
+      "name": "Format NorthData",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1840,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://aleph.occrp.org/api/2/entities/dd62a6174aa68d0d89d34d66441894a00092ba17.e8cb4458110967aa9bed60a85c5e5b14bf71d8f9",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "ApiKey 9F9LazPqvHWZVwFdwMr3u7GUwUqDhbH4DfYp6fzJ"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fd402290-ab65-4f24-ae04-eeb9b2ca7a4a",
+      "name": "Aleph Search1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -2880,
+        -192
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://www.northdata.com/_api/search/v1/universal",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "keywords",
+              "value": "={{ $json.target_name }}"
+            },
+            {
+              "name": "countries",
+              "value": "={{ $json.country }}"
+            },
+            {
+              "name": "query",
+              "value": "={{ $json.target_name }}"
+            },
+            {
+              "name": "domain",
+              "value": "person"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "f7a13f23-c207-4238-b3b3-561379fac156",
+      "name": "NorthData1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -2560,
+        832
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "TzlSC9nQ6T1Nww21",
+          "name": "Header Auth account 5"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5a6b7ff6-3f65-4aca-a37a-84e813038959",
+              "leftValue": "={{ $json.entity_type }}",
+              "rightValue": "Company",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2752,
+        752
+      ],
+      "id": "712eec8f-0bed-496f-a5c1-51eb2caa2495",
+      "name": "Check entity type1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Получаем ответ от предыдущей ноды\nconst response = $input.first().json;\n\n// 1. Нормализация входящих данных\n// North Data API может возвращать просто массив, или объект { results: [...] }\nlet items = [];\n\nif (Array.isArray(response)) {\n    // Если пришел массив (часто бывает, если n8n сам разбил список)\n    items = response;\n} else if (response.results && Array.isArray(response.results)) {\n    // Если пришел объект с ключом results\n    items = response.results;\n} else if (response.data && Array.isArray(response.data)) {\n    // Иногда бывает в data\n    items = response.data;\n}\n\n// Если массив пустой - возвращаем статус не найдено\nif (!items || items.length === 0) {\n    return [{ json: { northdata_found: false } }];\n}\n\n// 2. Ищем первый валидный результат с полем \"person\"\n// Иногда в выдаче могут быть мусорные данные, берем первый, где есть человек\nconst bestMatch = items.find(item => item.person) || items[0];\n\n// Если структура совсем не совпала\nif (!bestMatch) {\n     return [{ json: { northdata_found: false } }];\n}\n\n// 3. Извлекаем данные человека\n// Данные могут быть внутри свойства .person или в корне (зависит от эндпоинта)\nconst entity = bestMatch.person || bestMatch;\n\n// Извлекаем имя\n// const firstName = entity.name?.firstName || \"\";\n// const lastName = entity.name?.lastName || \"\";\n// Собираем полное имя для удобства\n// const fullName = [firstName, lastName].filter(Boolean).join(\" \");\n\n// Извлекаем адрес (город/страна)\n// const city = entity.address?.city || \"\";\n// const country = entity.address?.country || \"\";\n\n// // ID и ссылка\n// const internalId = entity.id;\n// const url = entity.northDataUrl;\n\n// // Дата рождения (если есть)\n// const birthDate = entity.birthDate || null;\n\nreturn entity\n//   [{\n//     json: {\n//         // northdata_found: true,\n        \n//         // // Основные данные для поиска\n//         // target_first_name: firstName,\n//         // target_last_name: lastName,\n//         // target_full_name: fullName,\n        \n//         // // География (важно для уточнения поиска в других API)\n//         // target_city: city,\n//         // target_country: country,\n        \n//         // // Уникальные идентификаторы NorthData\n//         // target_id: internalId,\n//         // target_url: url,\n        \n//         // // Доп. инфо для верификации (чтобы не перепутать однофамильцев)\n//         // birth_date: birthDate,\n        \n//         // // Тип сущности (для логики в Switch ноде, если понадобится)\n//         // entity_type: \"person\"\n//     }\n// }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2304,
+        832
+      ],
+      "id": "10f7e508-c7d2-4965-a2c0-a59072567d0a",
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "target_name": "Robert A. \\\"Bob\\\" Brozovic (Robert Allen Brozovic)",
+          "entity_type": "person",
+          "country": "US"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Split Properties1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aleph Search": {
+      "main": [
+        [
+          {
+            "node": "Filter Aleph",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenSanctions Match": {
+      "main": [
+        [
+          {
+            "node": "Extract OpenSanctions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Aleph": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract OpenSanctions": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenSanctions Details": {
+      "main": [
+        [
+          {
+            "node": "Format OpenSanctions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format OpenSanctions": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "General info": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanctions": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "URLs": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Relationships": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Relationships1": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Relationships",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Relationships1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        []
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Prepare Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Data_": {
+      "main": [
+        []
+      ]
+    },
+    "Prepare Data": {
+      "main": [
+        [
+          {
+            "node": "Aleph Search",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "OpenSanctions Match",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check entity type",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check entity type1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "OpenSanctions Details",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Split Properties1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "General info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Sanctions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "URLs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Code6": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code7": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check entity type": {
+      "main": [
+        [
+          {
+            "node": "OpenCorporates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenCorporates1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenCorporates": {
+      "main": [
+        [
+          {
+            "node": "Extract company",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenCorporates1": {
+      "main": [
+        [
+          {
+            "node": "Extract officer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract company": {
+      "main": [
+        [
+          {
+            "node": "OpenCorporates2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract officer": {
+      "main": [
+        [
+          {
+            "node": "OpenCorporates2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenCorporates2": {
+      "main": [
+        [
+          {
+            "node": "Format OpenSanctions1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format OpenSanctions1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "NorthData": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "NortData Detailed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NortData Detailed": {
+      "main": [
+        [
+          {
+            "node": "Format NorthData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format NorthData": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Check entity type1": {
+      "main": [
+        [
+          {
+            "node": "NorthData",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NorthData1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NorthData1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Format NorthData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f5e9c9df-5fe4-4671-a7e1-d8137dbf8646",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0b117642530262e72ecda9c24d3ad080d5c05facedad0573747b9dc1852951fb"
+  },
+  "id": "Ex9xjuSuGFfsNZgf",
+  "tags": []
+}
