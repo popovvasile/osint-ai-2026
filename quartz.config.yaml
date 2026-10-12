@@ -6,7 +6,7 @@ configuration:
   enablePopovers: true
   analytics: null
   locale: uk-UA
-  baseUrl: osinter.dev/osint-ai-2026
+  baseUrl: osinter.dev
   ignorePatterns:
     - private
     - templates
@@ -147,7 +147,7 @@ plugins:
   - source: "@quartz-community/og-image"
     enabled: false # disabled: satori can't render keycap emoji (1️⃣2️⃣…) used in some notes
   - source: "@quartz-community/cname"
-    enabled: false # disabled: site is hosted at the default popovvasile.github.io/osint-ai-2026 path, not a custom domain
+    enabled: false # not needed: Actions-based Pages deploys take the custom domain (osinter.dev) from repo settings, not a CNAME file
   - source: "@quartz-community/canvas-page"
     enabled: true
   - source: "@quartz-community/content-page"
