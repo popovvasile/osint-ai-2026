@@ -32,7 +32,8 @@ export default (() => {
       fileData.slug === "404" ? url.toString() : joinSegments(url.toString(), fileData.slug!)
 
     const usesCustomOgImage = ctx.cfg.plugins.emitters.some((e) => e.name === "CustomOgImages")
-    const ogImageDefaultPath = `https://${cfg.baseUrl}/static/og-image.png`
+    // versioned filename: link-preview caches (WhatsApp, Telegram) key on the image URL
+    const ogImageDefaultPath = `https://${cfg.baseUrl}/static/og-image-v2.png`
 
     const coreStylesheet = css[0]?.content
     const coreScript = js.find(
@@ -76,7 +77,7 @@ export default (() => {
             <meta name="twitter:image" content={ogImageDefaultPath} />
             <meta
               property="og:image:type"
-              content={`image/${getFileExtension(ogImageDefaultPath) ?? "png"}`}
+              content={`image/${getFileExtension(ogImageDefaultPath)?.replace(/^\./, "") ?? "png"}`}
             />
           </>
         )}
