@@ -1,17 +1,17 @@
-# Quartz v5
+# AI для OSINT 2026
 
-> “[One] who works with the door open gets all kinds of interruptions, but [they] also occasionally gets clues as to what the world is and what might be important.” — Richard Hamming
+Course materials for **AI для OSINT 2026**: lessons, homework, prompts, and reference notes for analysts.
 
-Quartz is a set of tools that helps you publish your [digital garden](https://jzhao.xyz/posts/networked-thought) and notes as a website for free.
+**Live site:** [https://osinter.dev](https://osinter.dev)
 
-🔗 Read the documentation and get started: https://quartz.jzhao.xyz/
+Content lives in [`content/`](content/). The site is built with [Quartz](https://quartz.jzhao.xyz/) and deployed to GitHub Pages from the `v5` branch via [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
 
-[Join the Discord Community](https://discord.gg/cRFFHYye7t)
+## Local preview
 
-## Sponsors
+```bash
+npm ci
+npx quartz build --serve --port 8080
+# → http://localhost:8080
+```
 
-<p align="center">
-  <a href="https://github.com/sponsors/jackyzha0">
-    <img src="https://cdn.jsdelivr.net/gh/jackyzha0/jackyzha0/sponsorkit/sponsors.svg" />
-  </a>
-</p>
+(Or with Podman: `podman run --rm --network=host --userns=keep-id -v "$PWD:/app:Z" -w /app -e HOME=/tmp -e npm_config_cache=/tmp/.npm node:22 bash -c 'npx quartz build --serve --port 8080'`.)
