@@ -208,10 +208,10 @@
 Використовуйте реверсний пошук для виявлення джерел зображення:
 
 - [Google Reverse Image](https://images.google.com/)
-- [Bing Image Search]()
-- [Yandex Images]()
+- Bing Image Search
+- Yandex Images
 - [TinEye](https://tineye.com/)
-- [Numlookup Reverse Image Search]()
+- Numlookup Reverse Image Search
 - [IQDB](https://iqdb.org/)
 - [Everypixel](https://everypixel.com/)
 
@@ -225,7 +225,7 @@ CopyEditsite:google.com inurl:image "example.com/image.jpg"
 
 **Приклад пошуку в Yandex:**
 
-1. Відкрийте [Yandex Images]().
+1. Відкрийте Yandex Images.
 2. Завантажте зображення або вставте URL.
 3. Аналізуйте отримані збіги.
 
@@ -237,7 +237,7 @@ CopyEditsite:google.com inurl:image "example.com/image.jpg"
 
 - [29a.ch](https://29a.ch/) — аналіз підробки зображень.
 - [Aperisolve](https://aperisolve.fr/) — інструмент для аналізу стеганографії.
-- [Perceptual Image Analysis Extension]() — розширення для перевірки зображень у Chrome.
+- Perceptual Image Analysis Extension — розширення для перевірки зображень у Chrome.
 
 **Приклад аналізу метаданих зображення в ExifTool:**
 
@@ -267,7 +267,7 @@ GPS Coordinates: 48.8566, 2.3522
 Використовуйте ці інструменти:
 
 - **Видалення фону:** [Remove.bg](https://www.remove.bg/), [Removal.ai](https://www.removal.ai/)
-- **Поліпшення роздільної здатності:** [LetsEnhance](https://letsenhance.io/), [Face-Real-ESRGAN]()
+- **Поліпшення роздільної здатності:** [LetsEnhance](https://letsenhance.io/), Face-Real-ESRGAN
 - **Ретуш зображень:** [Cleanup.pictures](https://cleanup.pictures/), [Inpaint](https://theinpaint.com/)
 
 **Приклад використання Python для покращення контрасту зображення:**
@@ -289,9 +289,9 @@ enhanced_image.save("enhanced_example.jpg")
 
 Якщо у зображенні є географічні дані, можна визначити місцезнаходження:
 
-- **[Geospy Web App]()**
-- **[HuggingFace Kosmos-2]()**
-- **[Labs TIB Geolocation]()**
+- **Geospy Web App**
+- **HuggingFace Kosmos-2**
+- **Labs TIB Geolocation**
 
 **Приклад перевірки координат у Google Maps:**
 
@@ -307,9 +307,9 @@ CopyEdithttps://www.google.com/maps?q=48.8566,2.3522
 
 Використовуйте AI для аналізу:
 
-- [HuggingFace Editing-Images]() — модифікація фото.
+- HuggingFace Editing-Images — модифікація фото.
 - [Adobe Firefly](https://firefly.adobe.com/) — покращення зображень.
-- [ResizePixel]() — переворот дзеркала.
+- ResizePixel — переворот дзеркала.
 
 ***
 
@@ -325,8 +325,8 @@ CopyEdithttps://www.google.com/maps?q=48.8566,2.3522
 - [FaceCheck.id](https://facecheck.id/) — пошук у соцмережах.
 - [Search4Faces](https://search4faces.com/) — пошук на російських платформах.
 - [UserSearch.ai](https://usersearch.ai/) — пошук людей.
-- [Bing Images]()
-- [Yandex Images]()
+- Bing Images
+- Yandex Images
 - [TinEye](https://tineye.com/)
 
 **Приклад автоматизації пошуку в Yandex за допомогою API:**
@@ -349,8 +349,8 @@ print(response.url)  # Перенаправлення на результати 
 
 Якщо на фото є обличчя, але потрібна геолокація, використовуйте:
 
-- [Geospy Web App]()
-- [Kosmos-2 HuggingFace]()
+- Geospy Web App
+- Kosmos-2 HuggingFace
 
 ***
 
@@ -358,8 +358,8 @@ print(response.url)  # Перенаправлення на результати 
 
 Якщо пошук не дає результатів, змініть фото:
 
-- **Дзеркальне відображення:** [ResizePixel]()
-- **Редагування обличчя:** [HuggingFace Editing-Images]()
+- **Дзеркальне відображення:** ResizePixel
+- **Редагування обличчя:** HuggingFace Editing-Images
 - **Зміна напрямку погляду:** [Hey-Photo](https://hey-photo.com/)
 
 **Приклад перевороту фото у Python:**
@@ -380,5 +380,5 @@ mirrored.save("mirrored_face.jpg")
 
 Щоб уникнути реверсного пошуку, використовуйте:
 
-- **[Generated Photos Anonymizer]()**
-- **[Hey-Photo Anonymize Tool]()**
+- **Generated Photos Anonymizer**
+- **Hey-Photo Anonymize Tool**

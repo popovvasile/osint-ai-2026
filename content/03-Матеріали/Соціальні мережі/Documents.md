@@ -156,7 +156,7 @@ for key, value in metadata.items():
     print(f"{key}: {value}")
 
 3. **Bulk Metadata Extractor**
-    - Інструмент для масового вилучення метаданих: [Bulk Metadata Extractor]()
+    - Інструмент для масового вилучення метаданих: Bulk Metadata Extractor
 4. **Tesseract OCR** (для зображень)
     - Офіційна документація: [Tesseract](https://github.com/tesseract-ocr/tesseract)
     - **Команда для вилучення тексту та метаданих:**bash

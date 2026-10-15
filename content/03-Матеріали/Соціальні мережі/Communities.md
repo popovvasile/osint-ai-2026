@@ -18,7 +18,7 @@ Discord розпочався як голосовий чат для геймер�
 
 - [Приклад тероризму](https://www.example.com/)
 - [Стаття Media Sonar про Discord](https://www.example.com/)
-- [ProPublica Atomwaffen]()
+- ProPublica Atomwaffen
 
 ## 1.2 Доступ до Discord
 

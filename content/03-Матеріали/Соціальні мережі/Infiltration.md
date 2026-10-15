@@ -266,17 +266,17 @@
 ### **Операційні акаунти та комунікації**
 
 📧 **E-mail-акаунти:**
-✔ Основний: [**shadow_rF@protonmail.com**]()
-✔ Альтернативний: [**frost29@tuta.io**]()
-✔ Маскований e-mail для реєстрацій: [**hydrax@simplelogin.com**]()
+✔ Основний: **shadow_rF@protonmail.com**
+✔ Альтернативний: **frost29@tuta.io**
+✔ Маскований e-mail для реєстрацій: **hydrax@simplelogin.com**
 
 🔹 **Імена користувачів (нікнейми)**:
 ✔ **Darknet-форуми**: **HydraX, rFShadow, ColdBytes**
 ✔ **Telegram**: **@HydraX_botnet**
-✔ **Jabber (XMPP, OTR)**: [**frost29@exploit.im**]()
+✔ **Jabber (XMPP, OTR)**: **frost29@exploit.im**
 ✔ **Wickr**: **ShadowFrost**
 ✔ **Discord**: **@ColdXploit**
-✔ **Mega.nz**: [**rfrost@protonmail.com**]()
+✔ **Mega.nz**: **rfrost@protonmail.com**
 
 
 
