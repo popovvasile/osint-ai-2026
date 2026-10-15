@@ -205,7 +205,7 @@ https://github.com/akashblackhat/vehical-osint
 | [PimEyes](https://pimeyes.com/) | Потужний ШІ для розпізнавання облич, що порівнює фото з базами в Інтернеті |
 | [CarLogos](https://www.carlogos.org/) | База всіх світових автовиробників і їхніх логотипів |
 | [PhotOSINT](https://photosint.io/) | Сканує зображення на веб-сторінках для пошуку EXIF-даних |
-| [Calculator IPVM]() | Визначає поле зору камери спостереження за допомогою Google Maps |
+| Calculator IPVM | Визначає поле зору камери спостереження за допомогою Google Maps |
 | [Commercial Truck Trader](https://www.commercialtrucktrader.com/) | База даних комерційних вантажівок у США |
 | [Plate Recognition AI](https://platerecognition.com/) | Розпізнає номери автомобілів у зоні видимості камери |
 
@@ -241,13 +241,13 @@ https://github.com/akashblackhat/vehical-osint
 | --- | --- |
 | [Numberogram](https://numberogram.ru/) | Пошук російських номерних знаків |
 | [Finnik](https://finnik.com/) | Пошук номерів авто в різних країнах Європи |
-| [Netherlands License Plate Dataset]() | База номерних знаків Нідерландів (15 млн записів) |
-| [Vic Roads]() | Реєстр транспортних засобів Вікторії (Австралія) |
+| Netherlands License Plate Dataset | База номерних знаків Нідерландів (15 млн записів) |
+| Vic Roads | Реєстр транспортних засобів Вікторії (Австралія) |
 | [SivAuto.fr](https://siv-auto.fr/) | Пошук номерних знаків Франції |
 | [Queensland.gov](https://www.qld.gov.au/) | Реєстр номерних знаків Квінсленду (Австралія) |
 | [Samgongustafa](https://www.samgongustofa.is/) | Пошук номерних знаків Ісландії |
 | [Autocode](https://autocode.ru/) | Пошук автомобільних номерів РФ |
-| [Eteenindus]() | Естонський реєстр номерних знаків |
+| Eteenindus | Естонський реєстр номерних знаків |
 | [STKonline](https://www.stkonline.sk/) | Словацький реєстр номерних знаків |
 | [DigitalService.dk](https://www.digitalservice.dk/) | Пошук номерних знаків у Данії, Швеції, Норвегії |
 | [MTSBU](https://www.mtsbu.ua/) | Український реєстр номерних знаків (⚠️ Використовуйте на власний ризик) |
@@ -270,11 +270,11 @@ https://github.com/akashblackhat/vehical-osint
 | [egov.kz](https://www.egov.kz/) | Реєстр номерних знаків Казахстану |
 | [Kaggle](https://www.kaggle.com/) | База номерних знаків Марокко |
 | [HowsMyDrivingNY](https://www.howsmydrivingny.com/) | Пошук порушень для номерів Нью-Йорка |
-| [Colorado.gov]() | Перевірка авто в Колорадо |
-| [DC.gov]() | Перевірка штрафів у Вашингтоні (США) |
-| [ct.gov]() | Перевірка авто в Коннектикуті |
+| Colorado.gov | Перевірка авто в Колорадо |
+| DC.gov | Перевірка штрафів у Вашингтоні (США) |
+| ct.gov | Перевірка авто в Коннектикуті |
 | [Honolulu Motor Vehicle Inquiry](https://www.honolulu.gov/) | Гавайський реєстр авто |
-| [Idaho.gov]() | Перевірка авто в Айдахо |
+| Idaho.gov | Перевірка авто в Айдахо |
 | [Oregon Semi-Truck Search](https://www.oregon.gov/) | База вантажівок Орегону |
 | [Mexico.gob](https://www.gob.mx/) | Пошук номерних знаків у Мексиці |
 | [Ghana Opera News](https://www.ghananews.com/) | Кодова система номерних знаків Гани |
@@ -398,8 +398,8 @@ https://github.com/akashblackhat/vehical-osint
 
 |  |  |
 | --- | --- |
-| [Google Map Scraper]() | Скрейпінг адрес, телефонів та даних з Google Maps |
-| [Cipher's Public Transport Maps]() | 20 карт громадського транспорту різних країн |
+| Google Map Scraper | Скрейпінг адрес, телефонів та даних з Google Maps |
+| Cipher's Public Transport Maps | 20 карт громадського транспорту різних країн |
 
 ***
 
@@ -443,11 +443,11 @@ https://github.com/akashblackhat/vehical-osint
 
 |  |  |
 | --- | --- |
-| [NMVTIS]() | Офіційний портал схвалених постачальників даних NMVTIS (США) |
+| NMVTIS | Офіційний портал схвалених постачальників даних NMVTIS (США) |
 | [DL # Calculator](https://www.dmv.org/) | Обчислення номерів водійських прав у 9 штатах США на основі ПІБ, статі та дати народження |
 | [Enterprise](https://www.enterprise.com/) | Пошук чеків за комбінацією прізвища та номера водійського посвідчення |
 | [Hertz](https://www.hertz.com/) | Пошук чеків у Hertz за аналогічним принципом |
-| [FMCSA.gov]() | Пошук транспортних компаній за USDOT-номером, MC/MX-номером або назвою |
+| FMCSA.gov | Пошук транспортних компаній за USDOT-номером, MC/MX-номером або назвою |
 | [FindFreightLoads.com](https://www.findfreightloads.com/) | База комерційних водіїв і доступних вантажів (контактні дані доступні для зареєстрованих користувачів) |
 
 
@@ -488,7 +488,7 @@ https://github.com/akashblackhat/vehical-osint
 | **Онлайн-портали штрафів** | Перевірка штрафів за місцевими системами |
 | **Деякі евакуаторні компанії** | Можуть мати відкриті реєстри вилучених авто на своїх сайтах |
 | [VINCHECKINFO's Reddit Thread](https://www.reddit.com/) | Обговорення відкритих реєстрів транспортних засобів у різних штатах |
-| [Cipher387 – 1000+ OSINT Tools]() | Величезна колекція OSINT-інструментів |
+| Cipher387 – 1000+ OSINT Tools | Величезна колекція OSINT-інструментів |
 | **Google Earth/Maps Timeline** | Функція повернення до попередніх версій Street View |
 | [CyberopsIntel](https://www.cyberopsintel.com/) | Стаття про OSINT-аналіз напіввантажівок |
 | [Geoguessr](https://www.geoguessr.com/) | Гра для тренування навичок геолокації |

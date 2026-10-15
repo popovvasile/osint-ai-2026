@@ -78,7 +78,7 @@ YouTube є однією з основних платформ, де можна з
 Якщо необхідно офіційно зберегти дані, варто подати запит на збереження (preservation request) у Google. Це робиться через:
 
 - [Google Law Enforcement Request System (LERS)](https://lers.google.com/signup_v2/landing)
-- Офіційна адреса підтримки правоохоронців: **[uslawenforcement@google.com]()**
+- Офіційна адреса підтримки правоохоронців: **uslawenforcement@google.com**
 - Додаткові ресурси:
     - [Список контактів ISP](https://www.search.org/resources/isp-list/)
     - [NW3C Investigative Resources](https://www.nw3c.org/investigative-resources)
@@ -256,8 +256,8 @@ OSINT-розслідування відео передбачає кілька к
 
 Перед аналізом відео його потрібно зберегти локально. Для цього використовуються наступні інструменти:
 
-- **[YouTube Downloader]()**
-- **[Inflact]()** – для Facebook, Instagram, Twitter, TikTok.
+- **YouTube Downloader**
+- **Inflact** – для Facebook, Instagram, Twitter, TikTok.
 - **[SaveFrom](https://save-from.net/)** – для різних платформ.
 - **[youtube-dl](https://github.com/ytdl-org/youtube-dl)** – CLI-інструмент для завантаження відео.
 
@@ -307,7 +307,7 @@ CopyEditffmpeg -i example.mp4 -vf "select=eq(n\,100)" -vsync vfr frame100.jpg
 ### **Інструменти для транскрипції:**
 
 - **[YouTube Transcript](https://youtubetranscript.com/)**
-- **[Whisper Web]()** – AI-обробка аудіо.
+- **Whisper Web** – AI-обробка аудіо.
 
 **Приклад автоматичної транскрипції відео за допомогою Python та OpenAI Whisper:**
 
@@ -372,7 +372,7 @@ GPS Coordinates: 40.7128, -74.0060
 
 ```
 
-Якщо є GPS-координати, перевіряємо їх на [Google Maps]().
+Якщо є GPS-координати, перевіряємо їх на Google Maps.
 
 
 

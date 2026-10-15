@@ -88,9 +88,9 @@
 - **izito** – Генерує результати з кількох джерел, таких як Yahoo, Bing, Wikipedia. [https://www.izito.com](https://www.izito.com/)
 - **Metacrawler** – Збирає результати з Google та Yahoo!. [https://www.metacrawler.com](https://www.metacrawler.com/)
 - **My All Search** – Агентує результати з Bing, DuckDuckGo, та інших. [https://www.myallsearch.com](https://www.myallsearch.com/)
-- **Carrot2** – Відкрите програмне забезпечення для кластеризації пошукових результатів. [https://search.carrot2.org]()
+- **Carrot2** – Відкрите програмне забезпечення для кластеризації пошукових результатів. https://search.carrot2.org
 - **elocalfinder** – Отримує результати з Google, Yahoo!, Ask і Bing. [http://www.elocalfinder.com](http://www.elocalfinder.com/)
-- **Searx** – Метапошуковик з акцентом на приватність. [https://searx.github.io]()
+- **Searx** – Метапошуковик з акцентом на приватність. https://searx.github.io
 
 
 
@@ -98,7 +98,7 @@
 #### FTP пошукові системи:
 
 - **Global file search** – Пошуковик для файлів на FTP-серверах. [http://www.filesearch.global](http://www.filesearch.global/)
-- **Archie** – Одна з перших FTP пошукових систем. [http://archie.icm.edu.pl]()
+- **Archie** – Одна з перших FTP пошукових систем. http://archie.icm.edu.pl
 - **File watcher** – Інструмент для пошуку файлів у FTP-мережі. [http://filewatcher.com](http://filewatcher.com/)
 - **Mamont** – FTP пошукова система для публічних серверів. [http://www.mmnt.ru](http://www.mmnt.ru/)
 - **NAPALM FTP Indexer** – Індексатор файлів на FTP-серверах. [http://www.searchftps.net](http://www.searchftps.net/)
@@ -108,7 +108,7 @@
 
 #### Пошукові системи для файлів:
 
-- **grayhatwarfare** – Пошук відкритих Amazon S3 бакетів та їх вмісту. [https://buckets.grayhatwarfare.com]()
+- **grayhatwarfare** – Пошук відкритих Amazon S3 бакетів та їх вмісту. https://buckets.grayhatwarfare.com
 
 
 
@@ -116,9 +116,9 @@
 #### Пошук зображень:
 
 - **Google image search** – Популярний пошук зображень від Google. [https://images.google.com](https://images.google.com/)
-- **Bing image search** – Пошук зображень від Microsoft. [https://www.bing.com/images]()
+- **Bing image search** – Пошук зображень від Microsoft. https://www.bing.com/images
 - **Yahoo images** – Пошук зображень через Yahoo. [https://images.search.yahoo.com](https://images.search.yahoo.com/)
-- **Yandex images** – Російська пошукова система для зображень. [https://yandex.com/images]()
+- **Yandex images** – Російська пошукова система для зображень. https://yandex.com/images
 - **Baidu images** – Пошук зображень у Китаї. [https://image.baidu.com](https://image.baidu.com/)
 - **Imgur** – Хостинг зображень та спільнота. [https://imgur.com](https://imgur.com/)
 - **Photobucket** – Хостинг зображень із можливістю пошуку. [https://photobucket.com](https://photobucket.com/)
@@ -131,7 +131,7 @@
 #### Зображення в соціальних мережах:
 
 - **Flickr** – Спільнота фотографів із мільйонами зображень. [https://www.flickr.com](https://www.flickr.com/)
-- **Flickr map** – Пошук фотографій за геолокацією на карті. [https://www.flickr.com/map]()
+- **Flickr map** – Пошук фотографій за геолокацією на карті. https://www.flickr.com/map
 - **idGettr** – Інструмент для пошуку Flickr ID. [https://www.idgettr.com](https://www.idgettr.com/)
 - **Flickr Hive Mind** – Інструмент для аналізу бази даних Flickr. [https://hiveminer.com](https://hiveminer.com/)
 - **Instagram** – Пошук зображень у соціальній мережі Instagram. [https://www.instagram.com](https://www.instagram.com/)
@@ -143,7 +143,7 @@
 #### Зображення з преси:
 
 - **Getty Images** – Зображення новин, розваг, моди та спорту. [https://www.gettyimages.com](https://www.gettyimages.com/)
-- **Reuters Pictures** – Фотографії від Reuters. [https://pictures.reuters.com]()
+- **Reuters Pictures** – Фотографії від Reuters. https://pictures.reuters.com
 - **News Press** – База даних зображень для медіа. [https://www.newspress.co.uk](https://www.newspress.co.uk/)
 - **Associated Press Images Portal** – Зображення з архівів AP. [https://apimages.com](https://apimages.com/)
 - **PA Images** – Архів фотографій із новин. [https://www.paimages.co.uk](https://www.paimages.co.uk/)
@@ -157,8 +157,8 @@
 
 - **Google Reverse Image Search** – Завантажте зображення для пошуку схожих. [https://images.google.com](https://images.google.com/)
 - **TinEye** – Знайдіть схожі зображення за їхнім оригіналом. [https://www.tineye.com](https://www.tineye.com/)
-- **Yandex Reverse Image Search** – Знайти джерело зображення. [https://yandex.com/images]()
-- **Bing Visual Search** – Завантажте зображення для пошуку об'єктів і тексту. [https://www.bing.com/visualsearch]()
+- **Yandex Reverse Image Search** – Знайти джерело зображення. https://yandex.com/images
+- **Bing Visual Search** – Завантажте зображення для пошуку об'єктів і тексту. https://www.bing.com/visualsearch
 
 
 
@@ -190,11 +190,11 @@
 
 #### Інструменти для покращення якості зображень:
 
-- **StockPhotos Upscaler** – Покращення якості стокових зображень. [https://stockphotos.com/upscaler]()
-- **Gigapixel AI** – Інструмент на основі AI для покращення деталізації. [https://www.topazlabs.com/gigapixel-ai]()
-- **VanceAI Image Upscaler** – Штучний інтелект для масштабування зображень. [https://vanceai.com/image-upscaler]()
-- **Icons8 Upscale Image** – Сервіс для покращення зображень онлайн. [https://icons8.com/upscaler]()
-- **Waifu2x** – Інструмент для масштабування анімаційних та ілюстраційних зображень. [http://waifu2x.udp.jp]()
+- **StockPhotos Upscaler** – Покращення якості стокових зображень. https://stockphotos.com/upscaler
+- **Gigapixel AI** – Інструмент на основі AI для покращення деталізації. https://www.topazlabs.com/gigapixel-ai
+- **VanceAI Image Upscaler** – Штучний інтелект для масштабування зображень. https://vanceai.com/image-upscaler
+- **Icons8 Upscale Image** – Сервіс для покращення зображень онлайн. https://icons8.com/upscaler
+- **Waifu2x** – Інструмент для масштабування анімаційних та ілюстраційних зображень. http://waifu2x.udp.jp
 - **Zyro** – Покращення зображень та автоматичне масштабування. [https://zyro.com](https://zyro.com/)
 - **GIMP** – Безкоштовний редактор для редагування та покращення зображень. [https://www.gimp.org](https://www.gimp.org/)
 - **A Sharper Scaling** – Інструмент для високоякісного масштабування зображень. [https://a-sharper-scaling.com](https://a-sharper-scaling.com/)
@@ -208,12 +208,12 @@
 - **YouTube** – Найпопулярніша платформа для пошуку відео. [https://www.youtube.com](https://www.youtube.com/)
 - **Google Video** – Відеопошук від Google. [https://video.google.com](https://video.google.com/)
 - **Yahoo Video Search** – Пошук відео через Yahoo. [https://video.search.yahoo.com](https://video.search.yahoo.com/)
-- **Bing Videos** – Відеопошук від Microsoft. [https://www.bing.com/videos]()
+- **Bing Videos** – Відеопошук від Microsoft. https://www.bing.com/videos
 - **AOL Videos** – Платформа для відео від AOL. [https://video.aol.com](https://video.aol.com/)
 - **StartPage Video Search** – Анонімний відеопошук. [https://www.startpage.com](https://www.startpage.com/)
 - **Vimeo** – Відомий сервіс для професійного відеоконтенту. [https://vimeo.com](https://vimeo.com/)
 - **Veoh** – Відеоплатформа з різноманітним контентом. [https://www.veoh.com](https://www.veoh.com/)
-- **Internet Archive Open Source Movies** – Архів відео з відкритим доступом. [https://archive.org/details/movies]()
+- **Internet Archive Open Source Movies** – Архів відео з відкритим доступом. https://archive.org/details/movies
 - **Live Leak** – Відео з подіями в реальному часі. [https://www.liveleak.com](https://www.liveleak.com/)
 
 
@@ -265,10 +265,10 @@
 
 - **Ahmia** – Пошукова система для сайтів у мережі TOR. [https://ahmia.fi](https://ahmia.fi/)
 - **Onion Search Engine** – Інструмент пошуку сайтів із .onion-доменами. [http://onionsearchengine.com](http://onionsearchengine.com/)
-- **Torch** – Одна з найстаріших пошукових систем у TOR. [http://xmh57jrzrnw6insl.onion]()
-- **Not Evil** – Пошукова система для анонімного перегляду. [http://hss3uro2hsxfogfq.onion]()
-- **The Uncensored Hidden Wiki** – Каталог посилань на сайти в мережі TOR. [http://zqktlwi4fecvo6ri.onion]()
-- **Candle** – Пошукова система для TOR із простим інтерфейсом. [http://gjobqjj7wyczbqie.onion]()
+- **Torch** – Одна з найстаріших пошукових систем у TOR. http://xmh57jrzrnw6insl.onion
+- **Not Evil** – Пошукова система для анонімного перегляду. http://hss3uro2hsxfogfq.onion
+- **The Uncensored Hidden Wiki** – Каталог посилань на сайти в мережі TOR. http://zqktlwi4fecvo6ri.onion
+- **Candle** – Пошукова система для TOR із простим інтерфейсом. http://gjobqjj7wyczbqie.onion
 
 
 
@@ -277,7 +277,7 @@
 
 - **1stHeadlines** – Пошук заголовків останніх новин. [http://www.1stheadlines.com](http://www.1stheadlines.com/)
 - **Google News Archive** – Архів новин від Google. [https://news.google.com](https://news.google.com/)
-- **Google Newspaper Archive** – Архів газет із багатьох країн. [https://news.google.com/newspapers]()
+- **Google Newspaper Archive** – Архів газет із багатьох країн. https://news.google.com/newspapers
 - **News Now** – Агрегатор новин із глобальним охопленням. [https://www.newsnow.co.uk](https://www.newsnow.co.uk/)
 - **Newspaper Archives** – Архів газет із 1607 до 2017 року. [https://newspaperarchive.com](https://newspaperarchive.com/)
 - **Daily Earth** – Глобальний агрегатор новин. [http://www.dailyearth.com](http://www.dailyearth.com/)
@@ -294,13 +294,13 @@
 #### Інструменти для перевірки фейкових новин:
 
 - **Snopes** – Сайт для виявлення фейкових новин, міфів і чуток. [https://www.snopes.com](https://www.snopes.com/)
-- **Hoaxy** – Інструмент для перевірки поширення фейкових новин у соціальних мережах. [https://hoaxy.iuni.iu.edu]()
+- **Hoaxy** – Інструмент для перевірки поширення фейкових новин у соціальних мережах. https://hoaxy.iuni.iu.edu
 - **FactCheck** – Моніторинг і перевірка фактів у новинах. [https://www.factcheck.org](https://www.factcheck.org/)
 - **Truth or Fiction** – Перевірка фактів у різних категоріях (політика, здоров’я тощо). [https://www.truthorfiction.com](https://www.truthorfiction.com/)
 - **Hoax-Slayer** – Фокус на виявленні шахрайства та фейків у соцмережах і електронній пошті. [https://www.hoax-slayer.net](https://www.hoax-slayer.net/)
 - **Verification Handbook** – Посібник із перевірки цифрового контенту для надзвичайних подій. [https://verificationhandbook.com](https://verificationhandbook.com/)
 - **Reporter Lab** – Карта глобальних сайтів для перевірки фактів. [https://reporterslab.org](https://reporterslab.org/)
-- **Citizen Evidence** – Інструменти для автентифікації контенту, створеного користувачами. [https://citizenevidence.amnesty.org]()
+- **Citizen Evidence** – Інструменти для автентифікації контенту, створеного користувачами. https://citizenevidence.amnesty.org
 
 
 
@@ -310,11 +310,11 @@
 - **Google Advanced Patent Search** – Розширений пошук патентів від Google. [https://patents.google.com](https://patents.google.com/)
 - **European Patent Office** – Європейська база патентів. [https://www.epo.org](https://www.epo.org/)
 - **World Intellectual Property Organization (WIPO)** – Глобальна організація для пошуку патентів. [https://www.wipo.int](https://www.wipo.int/)
-- **Canadian Intellectual Property Office** – Канадська база патентів. [https://www.ic.gc.ca]()
+- **Canadian Intellectual Property Office** – Канадська база патентів. https://www.ic.gc.ca
 - **Australia Patent Search** – Австралійська патентна база. [https://www.ipaustralia.gov.au](https://www.ipaustralia.gov.au/)
-- **India Patent Office** – Індійська база патентів. [http://ipindia.nic.in]()
+- **India Patent Office** – Індійська база патентів. http://ipindia.nic.in
 - **FreePatentsOnline** – Платформа для безкоштовного пошуку патентів. [https://www.freepatentsonline.com](https://www.freepatentsonline.com/)
-- **Directory of Intellectual Property Offices Worldwide** – Довідник міжнародних офісів інтелектуальної власності. [https://www.wipo.int/directory]()
+- **Directory of Intellectual Property Offices Worldwide** – Довідник міжнародних офісів інтелектуальної власності. https://www.wipo.int/directory
 
 
 
@@ -322,10 +322,10 @@
 #### Сервіси перекладу:
 
 - **Google Translate** – Популярний інструмент перекладу тексту та документів. [https://translate.google.com](https://translate.google.com/)
-- **Google Input Tools** – Інструмент для введення тексту різними мовами. [https://www.google.com/inputtools]()
+- **Google Input Tools** – Інструмент для введення тексту різними мовами. https://www.google.com/inputtools
 - **Apertium** – Безкоштовна платформа для автоматичного перекладу. [https://apertium.org](https://apertium.org/)
 - **DeepL Translator** – Один із найточніших перекладачів з підтримкою багатьох мов. [https://www.deepl.com](https://www.deepl.com/)
-- **Bing Translate** – Інструмент перекладу від Microsoft. [https://www.bing.com/translator]()
+- **Bing Translate** – Інструмент перекладу від Microsoft. https://www.bing.com/translator
 - **WordReference** – Онлайн-словник із підтримкою перекладу. [https://www.wordreference.com](https://www.wordreference.com/)
 - **PROMT.One** – Інструмент для перекладу тексту та документів. [https://www.online-translator.com](https://www.online-translator.com/)
 - **Textranch** – Сервіс для перевірки текстів на точність перекладу носіями мови. [https://textranch.com](https://textranch.com/)
@@ -351,7 +351,7 @@
 - **CorporationWiki** – Пошук компаній із візуалізацією зв’язків між співробітниками. [https://www.corporationwiki.com](https://www.corporationwiki.com/)
 - **Kompass** – Глобальна бізнес-платформа для B2B-компаній. [https://www.kompass.com](https://www.kompass.com/)
 - **Manta** – Бізнес-довідник для компаній США. [https://www.manta.com](https://www.manta.com/)
-- **Companies House** – Реєстрація компаній у Великобританії. [https://www.gov.uk/get-information-about-a-company]()
+- **Companies House** – Реєстрація компаній у Великобританії. https://www.gov.uk/get-information-about-a-company
 
 
 
@@ -362,7 +362,7 @@
 - **Google Scholar** – Пошук наукових статей і досліджень. [https://scholar.google.com](https://scholar.google.com/)
 - **ScienceDirect** – База академічних статей і журналів. [https://www.sciencedirect.com](https://www.sciencedirect.com/)
 - **Social Science Research Network (SSRN)** – Ресурс для пошуку досліджень у галузі соціальних наук. [https://www.ssrn.com](https://www.ssrn.com/)
-- **PQDT Open** – База відкритого доступу до дисертацій. [https://pqdtopen.proquest.com]()
+- **PQDT Open** – База відкритого доступу до дисертацій. https://pqdtopen.proquest.com
 - **National Archives (UK)** – Архів історичних документів Великобританії. [https://www.nationalarchives.gov.uk](https://www.nationalarchives.gov.uk/)
 - **GreyGuide** – Ресурс для пошуку сірої літератури в різних галузях. [http://www.greynet.org](http://www.greynet.org/)
 
@@ -419,7 +419,7 @@
 
 #### Інструменти для пошуку доменів:
 
-- **Whois Lookup** – Пошук інформації про реєстрацію домену. [https://whois.domaintools.com]()
+- **Whois Lookup** – Пошук інформації про реєстрацію домену. https://whois.domaintools.com
 - **DNS Dumpster** – Інструмент для збору даних DNS про домени. [https://dnsdumpster.com](https://dnsdumpster.com/)
 - **ViewDNS.info** – Платформа для перевірки інформації про домени та IP-адреси. [https://viewdns.info](https://viewdns.info/)
 - **DomainTools** – Професійний інструмент для аналізу доменів. [https://www.domaintools.com](https://www.domaintools.com/)
@@ -440,11 +440,11 @@
 
 #### Сервіси для пошуку у даркнеті:
 
-- **Torch** – Старий пошуковик у мережі TOR. [http://xmh57jrzrnw6insl.onion]()
+- **Torch** – Старий пошуковик у мережі TOR. http://xmh57jrzrnw6insl.onion
 - **Ahmia** – Пошуковик для сайтів із доменом .onion. [https://ahmia.fi](https://ahmia.fi/)
-- **Not Evil** – Пошуковик у даркнеті. [http://hss3uro2hsxfogfq.onion]()
-- **The Uncensored Hidden Wiki** – Каталог посилань на ресурси в мережі TOR. [http://zqktlwi4fecvo6ri.onion]()
-- **Candle** – Простий і легкий пошуковик у TOR. [http://gjobqjj7wyczbqie.onion]()
+- **Not Evil** – Пошуковик у даркнеті. http://hss3uro2hsxfogfq.onion
+- **The Uncensored Hidden Wiki** – Каталог посилань на ресурси в мережі TOR. http://zqktlwi4fecvo6ri.onion
+- **Candle** – Простий і легкий пошуковик у TOR. http://gjobqjj7wyczbqie.onion
 
 
 
@@ -455,7 +455,7 @@
 - **World Intellectual Property Organization (WIPO)** – Глобальний пошук патентів. [https://www.wipo.int](https://www.wipo.int/)
 - **European Patent Office** – База патентів у Європі. [https://www.epo.org](https://www.epo.org/)
 - **US Patent and Trademark Office (USPTO)** – Американська патентна база. [https://www.uspto.gov](https://www.uspto.gov/)
-- **PatentScope** – Інструмент для пошуку патентів по всьому світу. [https://patentscope.wipo.int]()
+- **PatentScope** – Інструмент для пошуку патентів по всьому світу. https://patentscope.wipo.int
 
 
 

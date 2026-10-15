@@ -257,7 +257,7 @@ GEOINT-аналіз проходить через кілька основних 
 ### **2.2. Інструменти для аналізу метаданих**
 
 - **[ExifTool](https://exiftool.org/)** – потужний інструмент для вилучення метаданих
-- **[Jeffrey’s Image Metadata Viewer]()**
+- **Jeffrey’s Image Metadata Viewer**
 - **[FotoForensics](http://fotoforensics.com/)** – додатковий аналіз рівнів компресії зображення
 
 **Приклад використання ExifTool у командному рядку:**
@@ -279,7 +279,7 @@ GPS Coordinates: 50.4501, 30.5234
 
 ```
 
-Після отримання GPS-координат їх можна перевірити у **[Google Maps]()**.
+Після отримання GPS-координат їх можна перевірити у **Google Maps**.
 
 ***
 
@@ -330,7 +330,7 @@ print(response.url)
 
 **Картографічні сервіси для пошуку локації:**
 
-- **[Google Maps]()**
+- **Google Maps**
 - **[Bing Maps](https://www.bing.com/maps/)**
 - **[Yandex Maps](https://yandex.ru/maps/)**
 - **[OpenStreetMap](https://www.openstreetmap.org/)**
