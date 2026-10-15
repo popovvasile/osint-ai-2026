@@ -57,6 +57,28 @@ description: "Матеріали курсу «AI для OSINT» 2026: слайд
 - [[03-Матеріали/Налаштування-API]] — Налаштування API-ключів для курсу
 - [[03-Матеріали/OSINT_n8n_Workflows_Tutorial]] — Автоматизація OSINT за допомогою n8n (до Уроку 11)
 
+### Соцмережі: довідник інструментів
+- [[03-Матеріали/Соціальні мережі/Соціальні мережі]] — Хаб SOCMINT (шаблони життя, культурна розвідка)
+- [[03-Матеріали/Соціальні мережі/People _ Search Engines]] — Пошук людей і пошукові системи
+- [[03-Матеріали/Соціальні мережі/Usernames]] — Usernames
+- [[03-Матеріали/Соціальні мережі/Emails]] — Emails
+- [[03-Матеріали/Соціальні мережі/Phone Numbers]] — Phone Numbers
+- [[03-Матеріали/Соціальні мережі/Імена]] — Імена
+- [[03-Матеріали/Соціальні мережі/Image]] — Image
+- [[03-Матеріали/Соціальні мережі/Maps]] — Maps
+- [[03-Матеріали/Соціальні мережі/Documents]] — Documents
+- [[03-Матеріали/Соціальні мережі/Domain and IP Adresses]] — Domain and IP
+- [[03-Матеріали/Соціальні мережі/API , Business Records and Venicles]] — API, business records, vehicles
+- [[03-Матеріали/Соціальні мережі/Communities]] — Communities
+- [[03-Матеріали/Соціальні мережі/Infiltration]] — Infiltration
+- [[03-Матеріали/Соціальні мережі/Capture & Preservation]] — Capture & Preservation
+- [[03-Матеріали/Соціальні мережі/Video, Streams and Online Communities]] — Video, streams, online communities
+- [[03-Матеріали/Соціальні мережі/CORPORATE OSINT]] — Corporate OSINT
+- [[03-Матеріали/Соціальні мережі/Візуалізація]] — Візуалізація
+- [[03-Матеріали/Соціальні мережі/Практика]] — Практика
+- [[03-Матеріали/Соціальні мережі/AI and WEB3 tech documentation]] — AI and WEB3 tech documentation
+- [[03-Матеріали/Соціальні мережі/Domain Report Tech Documentation]] — Domain report tech documentation
+
 ### Промпти
 - [[04-Промпти/Готові-промпти]] — Бібліотека готових промптів для копіювання
 
