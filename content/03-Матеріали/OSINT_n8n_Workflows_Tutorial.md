@@ -2,7 +2,7 @@
 
 **Курс: AI в OSINT**
 **Дата: квітень 2026**
-Посилання на мій воркфлоу- (link removed) 
+JSON-експорти воркфлоу (без ключів і персональних даних) лежать у папці `n8n-workflows` поруч із цим посібником.
 ---
 
 ## Зміст
@@ -327,7 +327,7 @@ Body: { "entities": [{ "name": "Company X", "type": "company" }, ...] }
 [Prepare Deploy]  ← generates URL slug, base64-encodes HTML
         │
 [GitHub - Push Report]  ← PUT to GitHub API to commit HTML file
-        │                   Repository: buzzler0109/reputation-reports
+        │                   Repository: <your-user>/reputation-reports
         │
 [Wait for Deploy]  ← 30-second pause for Vercel CI/CD to deploy
         │

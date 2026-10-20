@@ -740,9 +740,9 @@ CopyEditdomain.com/robots.txt
 - **Активна розвідка повинна враховувати юридичні ризики** та використовуватися лише після вичерпання пасивних методів.
 
 
-![:memo:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f4dd.png) **WorkSheet по Domain**: [Переглянути]((link removed))  
+![:memo:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f4dd.png) **WorkSheet по Domain**: посилання надається учасникам курсу  
 ![:clipboard:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f4cb.png) **Приклади репортів та темплейти:**  
-![:page_facing_up:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f4c4.png) **Приклад Репорту**: [Переглянути]((link removed))  
-![:scroll:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f4dc.png) **Репорт Брифінг Темплейт**: [Переглянути]((link removed))  
+![:page_facing_up:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f4c4.png) **Приклад Репорту**: посилання надається учасникам курсу  
+![:scroll:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f4dc.png) **Репорт Брифінг Темплейт**: посилання надається учасникам курсу  
 ![:books:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f4da.png) **Додатково:**  
 ![:male-detective:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f575-fe0f-200d-2642-fe0f.png) **Corporate OSINT методологія**: [Hack The Box Academy](https://academy.hackthebox.com/course/preview/osint-corporate-recon)
