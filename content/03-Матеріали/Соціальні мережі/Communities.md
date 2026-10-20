@@ -16,9 +16,9 @@ Discord розпочався як голосовий чат для геймер�
 
 ### Статті про OSINT-аналіз Discord:
 
-- [Приклад тероризму](https://www.example.com/)
-- [Стаття Media Sonar про Discord](https://www.example.com/)
-- [ProPublica Atomwaffen]()
+- Приклад тероризму (джерело не вказане)
+- Стаття Media Sonar про Discord (джерело не вказане)
+- ProPublica Atomwaffen
 
 ## 1.2 Доступ до Discord
 

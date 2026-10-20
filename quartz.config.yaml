@@ -230,7 +230,6 @@ plugins:
     options:
       links:
         GitHub: https://github.com/popovvasile/osint-ai-2026
-        Обсидіан-версія (Publish): https://publish.obsidian.md/osint-ai-2026/
     layout:
       position: footer
       priority: 50
