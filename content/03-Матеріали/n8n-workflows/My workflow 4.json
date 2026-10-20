@@ -12,7 +12,9 @@
       "position": [
         -720,
         48
-      ]
+      ],
+      "notes": "Після імпорту додайте ключі Aleph, OpenSanctions і OpenAI у Settings → Credentials свого n8n.",
+      "notesInFlow": true
     },
     {
       "parameters": {

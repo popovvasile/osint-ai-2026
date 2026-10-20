@@ -11,7 +11,7 @@
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
-                "value": "*"
+                "value": "https://YOUR_FRONTEND_ORIGIN"
               }
             ]
           }
@@ -25,7 +25,22 @@
         0,
         0
       ],
-      "webhookId": "reputation-check"
+      "webhookId": "reputation-check",
+      "notes": "Після імпорту: WEBHOOK_SECRET у env n8n (≥16), Header Auth за бажанням. Ключі через Credentials. CORS — адреса фронтенду, не *.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "function safeEqual(a, b) {\n  if (a.length !== b.length) return false;\n  let out = 0;\n  for (let i = 0; i < a.length; i++) out |= a.charCodeAt(i) ^ b.charCodeAt(i);\n  return out === 0;\n}\nconst item = $input.first().json;\nconst authHeader = item.headers?.authorization || item.headers?.Authorization || '';\nconst token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';\nconst expected = String($env.WEBHOOK_SECRET || '').trim();\nif (!expected || expected.length < 16) {\n  throw new Error('Unauthorized: set WEBHOOK_SECRET in n8n env (≥16 chars)');\n}\nif (!token || !safeEqual(token, expected)) {\n  throw new Error('Unauthorized: invalid Bearer token');\n}\nreturn [{ json: item }];\n"
+      },
+      "id": "8407cfad-652c-4a33-9a8c-76c11969c277",
+      "name": "Authorize Webhook",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        0
+      ]
     },
     {
       "parameters": {
@@ -269,7 +284,7 @@
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
-                "value": "*"
+                "value": "https://YOUR_FRONTEND_ORIGIN"
               }
             ]
           }
@@ -427,7 +442,7 @@
       "main": [
         [
           {
-            "node": "Init Variables",
+            "node": "Authorize Webhook",
             "type": "main",
             "index": 0
           }
@@ -602,6 +617,17 @@
         [
           {
             "node": "GitHub - Push Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authorize Webhook": {
+      "main": [
+        [
+          {
+            "node": "Init Variables",
             "type": "main",
             "index": 0
           }
