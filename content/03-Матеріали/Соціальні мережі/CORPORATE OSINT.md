@@ -1,3 +1,12 @@
+---
+tags:
+  - materials
+---
+
+<!-- course-nav -->
+> **Навігація курсу:** **Категорія:** [[03-Матеріали/Соціальні мережі/Соціальні мережі|SOCMINT]]
+
+
 Corporate OSINT Methodology
 
 1\. Open source intelligence (OSINT)

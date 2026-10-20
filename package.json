@@ -13,14 +13,19 @@
   },
   "scripts": {
     "quartz": "./quartz/bootstrap-cli.mjs",
+    "dev": "npm run prebuild && node ./quartz/bootstrap-cli.mjs build --serve",
     "docs": "npx quartz build --serve -d docs",
     "check": "tsc --noEmit && npx prettier . --check",
     "format": "npx prettier . --write",
     "test": "tsx --test",
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
+    "build:plugins": "node plugins/build-plugin.mjs graph",
     "install-plugins": "npx tsx ./quartz/plugins/loader/install-plugins.ts",
-    "prebuild": "npm run install-plugins"
+    "prebuild": "npm run build:plugins && npm run install-plugins"
   },
+  "workspaces": [
+    "plugins/*"
+  ],
   "engines": {
     "npm": ">=10.9.2",
     "node": ">=22"
@@ -64,7 +69,6 @@
     "@quartz-community/folder-page": "^1.0.0",
     "@quartz-community/footer": "^1.0.0",
     "@quartz-community/github-flavored-markdown": "^1.0.0",
-    "@quartz-community/graph": "^1.0.0",
     "@quartz-community/hard-line-breaks": "^1.0.0",
     "@quartz-community/latex": "^1.0.0",
     "@quartz-community/note-properties": "^1.0.0",
@@ -129,6 +133,7 @@
     "@types/yargs": "^17.0.35",
     "esbuild": "^0.28.2",
     "prettier": "^3.9.10",
+    "sass": "^1.105.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }

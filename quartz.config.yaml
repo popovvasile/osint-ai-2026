@@ -161,8 +161,72 @@ plugins:
     layout:
       position: left
       priority: 50
-  - source: "@quartz-community/graph"
+  - source: "./plugins/graph"
     enabled: true
+    options:
+      localGraph:
+        drag: true
+        zoom: true
+        depth: 1
+        scale: 0.95
+        repelForce: 0.55
+        centerForce: 0.22
+        linkDistance: 40
+        fontSize: 0.55
+        opacityScale: 1
+        removeTags: []
+        showTags: false
+        focusOnHover: false
+        enableRadial: false
+      globalGraph:
+        drag: true
+        zoom: true
+        depth: -1
+        scale: 0.85
+        repelForce: 0.9
+        centerForce: 0.06
+        linkDistance: 60
+        fontSize: 0.65
+        opacityScale: 1
+        removeTags: []
+        showTags: true
+        focusOnHover: true
+        # Radial fights colour clusters — keep off for readable sections.
+        enableRadial: false
+      sections:
+        - id: lesson
+          label: Уроки
+          tags: [lesson]
+          cssVar: --hub-lesson
+          fallback: "#eec35e"
+        - id: homework
+          label: ДЗ
+          tags: [homework]
+          cssVar: --hub-homework
+          fallback: "#d4845a"
+        - id: materials
+          label: Матеріали
+          tags: [materials]
+          cssVar: --hub-materials
+          fallback: "#7a9bb8"
+        - id: project
+          label: Проєкти
+          tags: [project]
+          cssVar: --hub-project
+          fallback: "#7cb87c"
+        - id: case
+          label: Кейси
+          tags: [case]
+          cssVar: --hub-case
+          fallback: "#c47a9e"
+        - id: meta
+          label: Мета
+          tags: [meta]
+          cssVar: --hub-meta
+          fallback: "#9a9a9a"
+      legend:
+        show: true
+        currentPageLabel: Поточна сторінка
     layout:
       position: right
       priority: 10

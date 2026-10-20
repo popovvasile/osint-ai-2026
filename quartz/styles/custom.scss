@@ -1,3 +1,11 @@
 @use "./variables.scss" as *;
 
-// put your custom CSS here!
+// Course section colours for the graph (and any hub legends).
+:root {
+  --hub-lesson: #eec35e;
+  --hub-homework: #d4845a;
+  --hub-materials: #7a9bb8;
+  --hub-project: #7cb87c;
+  --hub-case: #c47a9e;
+  --hub-meta: #9a9a9a;
+}
