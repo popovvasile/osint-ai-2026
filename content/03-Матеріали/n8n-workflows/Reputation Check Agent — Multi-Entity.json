@@ -11,7 +11,7 @@
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
-                "value": "*"
+                "value": "https://YOUR_FRONTEND_ORIGIN"
               }
             ]
           }
@@ -25,7 +25,9 @@
         0,
         0
       ],
-      "webhookId": "reputation-check"
+      "webhookId": "reputation-check",
+      "notes": "Після імпорту увімкніть Header Auth. Підставте свої ключі через Credentials. CORS — адреса вашого фронтенду, не *.",
+      "notesInFlow": true
     },
     {
       "parameters": {
@@ -269,7 +271,7 @@
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
-                "value": "*"
+                "value": "https://YOUR_FRONTEND_ORIGIN"
               }
             ]
           }

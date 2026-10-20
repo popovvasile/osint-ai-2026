@@ -9,13 +9,14 @@ JSON-експорти воркфлоу (без ключів і персонал�
 
 1. [Що таке n8n?](#що-таке-n8n)
 2. [Встановлення та запуск n8n](#встановлення-та-запуск-n8n)
-3. [Огляд workflow](#огляд-workflow)
-4. [Workflow 1 — Конвеєр збагачення даних про сутності («My workflow 4»)](#workflow-1--конвеєр-збагачення-даних-про-сутності)
-5. [Workflow 2 — OSINT Copilot Production (головний оркестратор)](#workflow-2--osint-copilot-production)
-6. [Workflow 3 — Reputation Check Agent (мультисутнісний)](#workflow-3--reputation-check-agent)
-7. [Як workflow взаємодіють між собою](#як-workflow-взаємодіють-між-собою)
-8. [Сучасні альтернативи: агенти Claude та Hermes](#сучасні-альтернативи-агенти-claude-та-hermes)
-9. [Вправи](#вправи)
+3. [Як правильно працювати з ключами та webhook](#як-правильно-працювати-з-ключами-та-webhook)
+4. [Огляд workflow](#огляд-workflow)
+5. [Workflow 1 — Конвеєр збагачення даних про сутності («My workflow 4»)](#workflow-1--конвеєр-збагачення-даних-про-сутності)
+6. [Workflow 2 — OSINT Copilot Production (головний оркестратор)](#workflow-2--osint-copilot-production)
+7. [Workflow 3 — Reputation Check Agent (мультисутнісний)](#workflow-3--reputation-check-agent)
+8. [Як workflow взаємодіють між собою](#як-workflow-взаємодіють-між-собою)
+9. [Сучасні альтернативи: агенти Claude та Hermes](#сучасні-альтернативи-агенти-claude-та-hermes)
+10. [Вправи](#вправи)
 
 ---
 
@@ -85,6 +86,25 @@ n8n start
 ### Перегляд логів виконання
 
 Після запуску клацніть **Executions** у лівій бічній панелі, щоб побачити кожне виконання, перевірити проміжні дані на кожному вузлі та дебажити помилки.
+
+---
+
+## Як правильно працювати з ключами та webhook
+
+Файли в `n8n-workflows/` — готові шаблони для практики. Імпортуйте їх у **свій** n8n і підключіть власні ключі через **Settings → Credentials** або змінні середовища (див. [[Налаштування-API]]). У шаблоні замість ключа стоїть плейсхолдер на кшталт `YOUR_TAVILY_API_KEY` — його треба замінити своїми обліковими даними у n8n, а не вписувати ключ у чат чи в здану роботу.
+
+### Коли вмикаєте webhook у себе
+
+1. У вузлі **Webhook** увімкніть автентифікацію (**Header Auth**) і придумайте довгий випадковий секрет.
+2. У CORS вкажіть лише адресу свого фронтенду (у шаблоні Reputation — `https://YOUR_FRONTEND_ORIGIN`), а не `*`.
+3. Для **OSINT Copilot** запити мають іти з заголовком `Authorization: Bearer …`. Список дозволених хостів для `callback_url` задайте змінною `CALLBACK_URL_ALLOWED_HOSTS` (наприклад `api.example.com`), щоб n8n викликав лише ваш бекенд.
+4. Якщо відкриваєте webhook у мережу — обмежте частоту запитів на reverse proxy.
+
+### Якщо надсилаєте workflow викладачу або одногрупникам
+
+- Перед експортом перевірте, що в JSON немає ваших ключів — лише плейсхолдери або посилання на Credentials.
+- Зробіть Unpin / очистіть **pinData**, щоб у файлі не було ваших тестових імен, IP чи внутрішніх адрес.
+- Файл `.env` і скріни з видимими ключами в домашку не додавайте.
 
 ---
 
@@ -208,6 +228,8 @@ POST /webhook/<webhook-id>/chat/completions
 
 Це дозволяє асинхронний UX — фронтенд може показувати прогрес-бар, поки конвеєр працює.
 
+Адреса `callback_url` має бути `https://` і входити до списку дозволених хостів (`CALLBACK_URL_ALLOWED_HOSTS`). Зручніше тримати відповідність `job_id → callback` на своєму бекенді й не приймати довільну адресу від клієнта.
+
 ### Повний конвеєр
 
 ```
@@ -291,8 +313,11 @@ Research Agent отримує системний промпт, який інст
 
 ```
 POST /webhook/reputation-check
+Authorization: Bearer <your-webhook-secret>
 Body: { "entities": [{ "name": "Company X", "type": "company" }, ...] }
 ```
+
+Перед публічним доступом увімкніть Header Auth на webhook і замініть CORS origin з `https://YOUR_FRONTEND_ORIGIN` на ваш реальний фронтенд.
 
 ### Конвеєр
 
@@ -677,9 +702,10 @@ async def run_investigation(query: str, callback_fn=None) -> str:
 ```bash
 curl -X POST http://localhost:5678/webhook/reputation-check \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_WEBHOOK_SECRET" \
   -d '{"entities": [{"name": "Binance", "type": "company"}]}'
 ```
-Перевірте вивід кожного вузла в логах виконання.
+Перевірте вивід кожного вузла в логах виконання. Замініть `YOUR_WEBHOOK_SECRET` на секрет з Header Auth.
 
 ### Вправа 2 — Простежте потік даних
 Відкрийте `My workflow 4.json` та простежте, що відбувається з однією сутністю:

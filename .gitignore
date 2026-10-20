@@ -12,3 +12,20 @@ replit.nix
 .quartz/
 quartz/cli/tui/dist/
 .turbo/
+
+# Secrets / local credentials (public course site — never commit)
+.env
+.env.*
+!.env.example
+*.pem
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+credentials.json
+**/credentials.json
+.streamlit/secrets.toml
+secrets.toml
+**/secrets.toml
+*.p12
+*.pfx
