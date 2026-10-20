@@ -95,10 +95,11 @@ n8n start
 
 ### Коли вмикаєте webhook у себе
 
-1. У вузлі **Webhook** увімкніть автентифікацію (**Header Auth**) і придумайте довгий випадковий секрет.
-2. У CORS вкажіть лише адресу свого фронтенду (у шаблоні Reputation — `https://YOUR_FRONTEND_ORIGIN`), а не `*`.
-3. Для **OSINT Copilot** запити мають іти з заголовком `Authorization: Bearer …`. Список дозволених хостів для `callback_url` задайте змінною `CALLBACK_URL_ALLOWED_HOSTS` (наприклад `api.example.com`), щоб n8n викликав лише ваш бекенд.
-4. Якщо відкриваєте webhook у мережу — обмежте частоту запитів на reverse proxy.
+1. У змінних середовища n8n задайте `WEBHOOK_SECRET` (випадковий рядок ≥16 символів). Шаблони звіряють `Authorization: Bearer …` із цим значенням у Code-вузлах. Не вмикайте `N8N_BLOCK_ENV_ACCESS_IN_NODE=true`, інакше `$env` у Code недоступний і запити падатимуть з Unauthorized.
+2. У вузлі **Webhook** за бажанням додатково увімкніть **Header Auth** з тим самим секретом (захист на рівні n8n).
+3. У CORS вкажіть лише адресу свого фронтенду (у шаблоні Reputation — `https://YOUR_FRONTEND_ORIGIN`), а не `*`.
+4. Для **OSINT Copilot** і **Reputation Check** викликайте webhook із `Authorization: Bearer <WEBHOOK_SECRET>`. Список дозволених хостів для `callback_url` (Copilot) задайте змінною `CALLBACK_URL_ALLOWED_HOSTS` (наприклад `api.example.com`).
+5. Якщо відкриваєте webhook у мережу — обмежте частоту запитів на reverse proxy.
 
 ### Якщо надсилаєте workflow викладачу або одногрупникам
 
@@ -317,12 +318,14 @@ Authorization: Bearer <your-webhook-secret>
 Body: { "entities": [{ "name": "Company X", "type": "company" }, ...] }
 ```
 
-Перед публічним доступом увімкніть Header Auth на webhook і замініть CORS origin з `https://YOUR_FRONTEND_ORIGIN` на ваш реальний фронтенд.
+Перед публічним доступом задайте `WEBHOOK_SECRET` у env n8n (Bearer має збігатися), за бажанням увімкніть Header Auth і замініть CORS origin з `https://YOUR_FRONTEND_ORIGIN` на ваш реальний фронтенд.
 
 ### Конвеєр
 
 ```
 [Webhook]  ← POST /reputation-check
+        │
+[Authorize Webhook]  ← Bearer == WEBHOOK_SECRET
         │
 [Init Variables]  ← extracts entities array, sets timestamp
         │
@@ -705,7 +708,7 @@ curl -X POST http://localhost:5678/webhook/reputation-check \
   -H "Authorization: Bearer YOUR_WEBHOOK_SECRET" \
   -d '{"entities": [{"name": "Binance", "type": "company"}]}'
 ```
-Перевірте вивід кожного вузла в логах виконання. Замініть `YOUR_WEBHOOK_SECRET` на секрет з Header Auth.
+Перевірте вивід кожного вузла в логах виконання. Замініть `YOUR_WEBHOOK_SECRET` на значення `WEBHOOK_SECRET` з env n8n.
 
 ### Вправа 2 — Простежте потік даних
 Відкрийте `My workflow 4.json` та простежте, що відбувається з однією сутністю:
