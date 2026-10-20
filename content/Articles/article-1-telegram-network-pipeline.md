@@ -1,4 +1,13 @@
+---
+tags:
+  - materials
+---
+
 # Mapping Telegram Networks: Build a Full OSINT Graph Pipeline with Groupint, Neo4j, Gephi, and Claude
+<!-- course-nav -->
+> **Навігація курсу:** **Категорія:** [[Articles/index|Статті]]
+
+
 
 *A step-by-step tutorial for investigators who want to move from raw Telegram data to AI-analyzed community structure — entirely on local infrastructure.*
 

@@ -1,4 +1,13 @@
+---
+tags:
+  - materials
+---
+
 # Build an Entity Resolution Pipeline: Linking Identities Across Multiple Sources with AI
+<!-- course-nav -->
+> **Навігація курсу:** **Категорія:** [[Articles/index|Статті]]
+
+
 
 *A step-by-step tutorial for building a Python pipeline that takes fragmented identity records from multiple OSINT data sources and resolves them into a unified, confidence-scored entity graph.*
 

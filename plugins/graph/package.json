@@ -1,0 +1,147 @@
+{
+  "name": "@shum-camp/quartz-graph",
+  "version": "1.0.0",
+  "description": "Graph view for osint-ai-2026: nodes coloured and clustered by course section tags, with legend.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "node ../build-plugin.mjs graph",
+    "typecheck": "tsc --noEmit -p tsconfig.build.json"
+  },
+  "peerDependencies": {
+    "preact": ">=10.0.0"
+  },
+  "dependencies": {
+    "@quartz-community/types": "^1.0.0",
+    "@quartz-community/utils": "^1.0.0"
+  },
+  "quartz": {
+    "name": "graph",
+    "displayName": "Graph (sections)",
+    "category": "component",
+    "version": "1.0.0",
+    "quartzVersion": ">=5.0.0",
+    "dependencies": [],
+    "defaultOrder": 50,
+    "defaultEnabled": true,
+    "defaultOptions": {
+      "localGraph": {
+        "drag": true,
+        "zoom": true,
+        "depth": 1,
+        "scale": 1.1,
+        "repelForce": 0.5,
+        "centerForce": 0.3,
+        "linkDistance": 30,
+        "fontSize": 0.6,
+        "opacityScale": 1,
+        "showTags": true,
+        "removeTags": [],
+        "focusOnHover": false,
+        "enableRadial": false
+      },
+      "globalGraph": {
+        "drag": true,
+        "zoom": true,
+        "depth": -1,
+        "scale": 0.9,
+        "repelForce": 0.5,
+        "centerForce": 0.2,
+        "linkDistance": 30,
+        "fontSize": 0.6,
+        "opacityScale": 1,
+        "showTags": true,
+        "removeTags": [],
+        "focusOnHover": true,
+        "enableRadial": false
+      },
+      "sections": [
+        {
+          "id": "lesson",
+          "label": "Уроки",
+          "tags": ["lesson"],
+          "cssVar": "--hub-lesson",
+          "fallback": "#eec35e"
+        },
+        {
+          "id": "homework",
+          "label": "ДЗ",
+          "tags": ["homework"],
+          "cssVar": "--hub-homework",
+          "fallback": "#d4845a"
+        },
+        {
+          "id": "materials",
+          "label": "Матеріали",
+          "tags": ["materials"],
+          "cssVar": "--hub-materials",
+          "fallback": "#7a9bb8"
+        },
+        {
+          "id": "project",
+          "label": "Проєкти",
+          "tags": ["project"],
+          "cssVar": "--hub-project",
+          "fallback": "#7cb87c"
+        },
+        {
+          "id": "case",
+          "label": "Кейси",
+          "tags": ["case"],
+          "cssVar": "--hub-case",
+          "fallback": "#c47a9e"
+        },
+        {
+          "id": "meta",
+          "label": "Мета",
+          "tags": ["meta"],
+          "cssVar": "--hub-meta",
+          "fallback": "#9a9a9a"
+        }
+      ],
+      "legend": {
+        "show": true,
+        "currentPageLabel": "Поточна сторінка"
+      }
+    },
+    "components": {
+      "Graph": {
+        "displayName": "Graph",
+        "defaultPosition": "right",
+        "defaultPriority": 10
+      }
+    },
+    "optionSchema": {
+      "localGraph": {
+        "type": "object"
+      },
+      "globalGraph": {
+        "type": "object"
+      },
+      "sections": {
+        "type": "array"
+      },
+      "legend": {
+        "type": "object"
+      }
+    }
+  }
+}

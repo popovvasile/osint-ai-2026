@@ -1,0 +1,66 @@
+---
+description: How to add or link course pages so the Quartz graph stays hub→category→page (no mesh, no orphans).
+globs: content/**/*.md
+alwaysApply: false
+---
+
+# Course graph: mapping new nodes
+
+Edges come only from `[[wikilinks]]`. Structure beats convenience: never shortcut past a hub/category.
+
+## Taxonomy (pick one tag + folder)
+
+| Tag | Hub | Middle layer | Leaf |
+|-----|-----|--------------|------|
+| `lesson` | `01-Уроки/index` | — (flat under hub) | `Урок-*.md` |
+| `homework` | `02-Домашні-завдання/index` | — | `ДЗ-*.md` |
+| `materials` | `03-Матеріали/index` | Довідники / SOCMINT / Промпти / Шаблони / Статті | page in that category |
+| `project` | `05-Проєкти/index` | project `*/index` (TSUKUYOMI, Obsidian, Hermes…) | module pages |
+| `case` | `06-Кейси/index` | category `*/index` (CTI, Шахрайство…) | case page |
+| `meta` | home / literacy notes | — | rare |
+
+Frontmatter: exactly one structural tag from the table (extra topical tags only if needed; they create global tag stars).
+
+## Allowed edges
+
+1. **Hub →** middle nodes only (categories / project folders / all lessons or ДЗ). Optional **hub ↔ hub** (e.g. Уроки↔ДЗ, Проєкти↔Кейси, Матеріали categories back to materials hub).
+2. **Category →** its leaves + parent hub. List every leaf (no undocumented pages).
+3. **Leaf →** parent only (category, or lesson/ДЗ hub if flat).
+4. **Outside → hub** never to a leaf (home, other sections, course-nav “Матеріали/Кейси/…”).
+
+### Intentional intersection (lessons ↔ homework only)
+
+- Paired leaves may link: Урок-N ↔ ДЗ-N (01, 02, 03, 05 today).
+- No prev/next chains between lessons or between ДЗ; order lives on the hub list.
+
+## Adding a new page (checklist)
+
+1. Choose tag + folder from the table.
+2. Create the `.md` with that tag.
+3. Add absolute wikilink on the **parent** index (`[[05-Проєкти/TSUKUYOMI/New|…]]` style — avoid bare relative names that resolve wrong).
+4. Set leaf course-nav to parent only, e.g.  
+   `> **Навігація курсу:** **Категорія:** [[…/index|Name]]`  
+   (lessons/ДЗ: hub + optional pair).
+5. Do **not** wikilink siblings, other sections’ leaves, or “related” pages in body — use plain text. TOC on overviews: backticks/filenames, not `[[leaf]]`.
+6. Point home / foreign nav at the **section hub**, not the new leaf.
+7. If you invent a new category: add `index.md` (tag + list of children + link to hub), then link it from the section hub — never hang leaves off the hub directly when a category exists.
+
+## Anti-patterns
+
+```markdown
+<!-- BAD: hub skips to leaf -->
+- [[06-Кейси/CTI/Кейс-CTI-приклад]]
+
+<!-- GOOD -->
+- [[06-Кейси/CTI/index|CTI]]
+
+<!-- BAD: leaf mesh -->
+> **Далі:** [[Урок-03]] · **Матеріали:** [[Матеріали-Урок-02-GenAI]]
+
+<!-- GOOD -->
+> **Хаб:** [[01-Уроки/index|Уроки]] · **ДЗ:** [[02-Домашні-завдання/ДЗ-02-GenAI-для-аналітика|ДЗ-02]]
+```
+
+## After edits
+
+Confirm the new slug appears under its parent in the graph (no orphan, no clique). Reader-facing summary: `content/Як-читати-граф.md`.
