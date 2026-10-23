@@ -14,7 +14,7 @@ Edges come only from `[[wikilinks]]`. Structure beats convenience: never shortcu
 |-----|-----|--------------|------|
 | `lesson` | `01-Уроки/index` | — (flat under hub) | `Урок-*.md` |
 | `homework` | `02-Домашні-завдання/index` | — | `ДЗ-*.md` |
-| `materials` | `03-Матеріали/index` | Довідники / SOCMINT / Промпти / Шаблони / Статті | page in that category |
+| `materials` | `03-Матеріали/index` | Довідники / Бонус / SOCMINT / Промпти / Шаблони / Статті | page in that category |
 | `project` | `05-Проєкти/index` | project `*/index` (TSUKUYOMI, Obsidian, Hermes…) | module pages |
 | `case` | `06-Кейси/index` | category `*/index` (CTI, Шахрайство…) | case page |
 | `meta` | home / literacy notes | — | rare |
