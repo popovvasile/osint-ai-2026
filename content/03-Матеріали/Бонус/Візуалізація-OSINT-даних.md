@@ -1,13 +1,15 @@
 ---
 tags:
-  - lesson
+  - materials
 aliases:
   - "01-Уроки/Урок-14-Візуалізація-OSINT-даних"
+  - "01-Уроки/Бонус-Візуалізація-OSINT-даних"
+  - "03-Матеріали/Бонус/Бонус-Візуалізація-OSINT-даних"
 ---
 
-# Бонус: Візуалізація OSINT-даних — мережевий аналіз та GEOINT
+# Візуалізація OSINT-даних — мережевий аналіз та GEOINT
 <!-- course-nav -->
-> **Навігація курсу:** **Хаб:** [[01-Уроки/index|Уроки]] · **Розділ:** Бонус (поза програмою 01–16)
+> **Навігація курсу:** **Категорія:** [[03-Матеріали/Бонус/index|Бонус]]
 
 > **Інструменти:** [Gephi](https://gephi.org/) · [gephi-ai](https://github.com/MattArtzAnthro/gephi-ai) · [QGIS](https://qgis.org/) · [Kepler.gl](https://kepler.gl/) · [Neo4j](https://neo4j.com/) · [Sigma.js](https://www.sigmajs.org/) · [Maltego](https://www.maltego.com/)
 
@@ -897,4 +899,4 @@ map_1.save_to_html(file_name="report_map.html")  # самодостатній HT
 
 ---
 
-*Кінець бонусного матеріалу «Візуалізація OSINT-даних».*
+*Кінець матеріалу «Візуалізація OSINT-даних».*
