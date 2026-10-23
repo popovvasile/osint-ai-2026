@@ -38,6 +38,7 @@ tags:
 
 **Для кейсу з патентами потрібно:**
 
+* [patents_full_enrichment_0304.xlsx](./patents_full_enrichment_0304.xlsx) — датасет;  
 * встановити відношення групи патентів до виробу типу **БЕК**;  
 * встановити зв’язки між кластерами патентів та науковим персоналом;  
 * репрезентувати це як очищений від зайвих даних граф.
@@ -235,3 +236,4 @@ homework_cluster_summaries/
 ## Додаткові матеріали
 
 - [GephiDatasets](https://github.com/Ifeanyi55/GephiDatasets) — освітні датасети для Gephi (готові графи для практики візуалізації та аналізу мереж)
+- [patents_full_enrichment_0304.xlsx](./patents_full_enrichment_0304.xlsx) — основний датасет для кейсу з патентами
