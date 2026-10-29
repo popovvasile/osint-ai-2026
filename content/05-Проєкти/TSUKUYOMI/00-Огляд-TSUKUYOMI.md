@@ -3,9 +3,7 @@ tags:
   - project
 ---
 
-<!-- course-nav -->
-> **Навігація курсу:** **Проєкт:** [[05-Проєкти/TSUKUYOMI/index|TSUKUYOMI]]
-
+> [[05-Проєкти/TSUKUYOMI/index|TSUKUYOMI]]
 
 # TSUKUYOMI — Модульний Intelligence Framework
 

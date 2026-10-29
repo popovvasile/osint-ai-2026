@@ -4,10 +4,7 @@ tags:
 ---
 
 # Build a Local OSINT Research Workspace: Obsidian + OSINT Copilot + Claude Code
-<!-- course-nav -->
-> **Навігація курсу:** **Категорія:** [[Articles/index|Статті]]
-
-
+> [[Articles/index|Статті]]
 
 *A step-by-step tutorial for investigators who want a local-first workspace where entities, relationships, timeline, and maps live as plain text — and Claude Code acts as the AI layer for extraction, vault Q&A, and investigation synthesis.*
 

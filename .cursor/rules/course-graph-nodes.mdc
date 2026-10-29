@@ -30,7 +30,7 @@ Frontmatter: exactly one structural tag from the table (extra topical tags only 
 
 ### Intentional intersection (lessons ↔ homework only)
 
-- Paired leaves may link: Урок ↔ ДЗ (01↔01, 02↔02, 03↔03, 05↔05, 09↔09 today).
+- Paired leaves may link: Урок ↔ ДЗ (01↔01, 02↔02, 04↔04, 07↔07, 08↔08 today).
 - No prev/next chains between lessons or between ДЗ; order lives on the hub list.
 
 ## Adding a new page (checklist)
@@ -38,9 +38,9 @@ Frontmatter: exactly one structural tag from the table (extra topical tags only 
 1. Choose tag + folder from the table.
 2. Create the `.md` with that tag.
 3. Add absolute wikilink on the **parent** index (`[[05-Проєкти/TSUKUYOMI/New|…]]` style — avoid bare relative names that resolve wrong).
-4. Set leaf course-nav to parent only, e.g.  
-   `> **Навігація курсу:** **Категорія:** [[…/index|Name]]`  
-   (lessons/ДЗ: hub + optional pair).
+4. Set leaf course-nav to the parent only, as a short student line (no “Хаб” / “Категорія” / “Навігація курсу” labels), e.g.  
+   `> [[…/index|Name]]`  
+   (lessons/ДЗ: hub + optional pair, e.g. `> [[01-Уроки/index|Усі уроки]] · [[02-Домашні-завдання/ДЗ-02-GenAI-для-аналітика|Домашнє завдання]]`).
 5. Do **not** wikilink siblings, other sections’ leaves, or “related” pages in body — use plain text. TOC on overviews: backticks/filenames, not `[[leaf]]`.
 6. Point home / foreign nav at the **section hub**, not the new leaf.
 7. If you invent a new category: add `index.md` (tag + list of children + link to hub), then link it from the section hub — never hang leaves off the hub directly when a category exists.
@@ -55,10 +55,10 @@ Frontmatter: exactly one structural tag from the table (extra topical tags only 
 - [[06-Кейси/CTI/index|CTI]]
 
 <!-- BAD: leaf mesh -->
-> **Далі:** [[Урок-03]] · **Матеріали:** [[Матеріали-Урок-02-GenAI]]
+> **Далі:** [[Урок-04]] · **Матеріали:** [[Матеріали-Урок-02-GenAI]]
 
 <!-- GOOD -->
-> **Хаб:** [[01-Уроки/index|Уроки]] · **ДЗ:** [[02-Домашні-завдання/ДЗ-02-GenAI-для-аналітика|ДЗ-02]]
+> [[01-Уроки/index|Усі уроки]] · [[02-Домашні-завдання/ДЗ-02-GenAI-для-аналітика|Домашнє завдання]]
 ```
 
 ## After edits

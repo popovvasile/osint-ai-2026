@@ -3,8 +3,7 @@ tags:
   - project
 ---
 
-<!-- course-nav -->
-> **Навігація курсу:** **Проєкт:** [[05-Проєкти/Hermes-Agent-MindsDB/index|Hermes Agent + MindsDB]]
+> [[05-Проєкти/Hermes-Agent-MindsDB/index|Hermes Agent + MindsDB]]
 
 # Посібник зі встановлення та забезпечення збереження даних для Hermes Agent на Ubuntu 24.04
 
