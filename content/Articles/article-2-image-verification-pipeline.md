@@ -4,10 +4,7 @@ tags:
 ---
 
 # Build an Automated Image Verification Pipeline in Python
-<!-- course-nav -->
-> **Навігація курсу:** **Категорія:** [[Articles/index|Статті]]
-
-
+> [[Articles/index|Статті]]
 
 *A step-by-step tutorial for building a local script that takes an image of unknown provenance and returns a structured verification report — metadata audit, edit-detection score, reverse image search hits, chronolocation estimate, and AI verdict.*
 

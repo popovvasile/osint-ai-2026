@@ -2,14 +2,13 @@
 tags:
   - materials
 aliases:
-  - "01-Уроки/Урок-14-Візуалізація-OSINT-даних"
+  - "01-Уроки/Урок-20-Візуалізація-OSINT-даних"
   - "01-Уроки/Бонус-Візуалізація-OSINT-даних"
   - "03-Матеріали/Бонус/Бонус-Візуалізація-OSINT-даних"
 ---
 
 # Візуалізація OSINT-даних — мережевий аналіз та GEOINT
-<!-- course-nav -->
-> **Навігація курсу:** **Категорія:** [[03-Матеріали/Бонус/index|Бонус]]
+> [[03-Матеріали/Бонус/index|Бонус]]
 
 > **Інструменти:** [Gephi](https://gephi.org/) · [gephi-ai](https://github.com/MattArtzAnthro/gephi-ai) · [QGIS](https://qgis.org/) · [Kepler.gl](https://kepler.gl/) · [Neo4j](https://neo4j.com/) · [Sigma.js](https://www.sigmajs.org/) · [Maltego](https://www.maltego.com/)
 
@@ -28,7 +27,7 @@ aliases:
 # Візуалізація OSINT-даних
 ## Мережевий аналіз та GEOINT
 
-**Урок 14 | AI для OSINT 2026**
+**Урок 20 | AI для OSINT 2026**
 
 *«Граф показує, хто з ким. Карта показує, де і коли. Разом — вони розповідають усю історію.»*
 
@@ -792,7 +791,7 @@ map_1.save_to_html(file_name="report_map.html")  # самодостатній HT
 
 ### Слайд 26 — Резюме та ключові виводи
 
-**Урок 14 охопив два виміри OSINT-візуалізації:**
+**Урок 20 охопив два виміри OSINT-візуалізації:**
 
 **Мережевий аналіз:**
 - Метрики центральності (Degree, Betweenness, Closeness, Eigenvector, PageRank)
