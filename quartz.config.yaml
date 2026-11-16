@@ -188,32 +188,32 @@ plugins:
       sections:
         - id: lesson
           label: Уроки
-          tags: [lesson]
+          tags: [ lesson ]
           cssVar: --hub-lesson
           fallback: "#eec35e"
         - id: homework
           label: ДЗ
-          tags: [homework]
+          tags: [ homework ]
           cssVar: --hub-homework
           fallback: "#d4845a"
         - id: materials
           label: Матеріали
-          tags: [materials]
+          tags: [ materials ]
           cssVar: --hub-materials
           fallback: "#7a9bb8"
         - id: project
           label: Проєкти
-          tags: [project]
+          tags: [ project ]
           cssVar: --hub-project
           fallback: "#7cb87c"
         - id: case
           label: Кейси
-          tags: [case]
+          tags: [ case ]
           cssVar: --hub-case
           fallback: "#c47a9e"
         - id: meta
           label: Мета
-          tags: [meta]
+          tags: [ meta ]
           cssVar: --hub-meta
           fallback: "#9a9a9a"
       legend:
@@ -313,8 +313,6 @@ plugins:
         - aliases
       excludedProperties: []
       hidePropertiesView: true
-      delimiters: ---
-      language: yaml
     order: 5
     layout:
       position: beforeBody

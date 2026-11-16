@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "plugins": {
+    "graph": {
+      "source": "./plugins/graph",
+      "resolved": "/mnt/Storage/Projects/osint-ai-2026/plugins/graph",
+      "commit": "local",
+      "installedAt": "2026-11-16T14:49:24.688Z"
+    }
+  }
+}
