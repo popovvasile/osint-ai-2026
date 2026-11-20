@@ -11,6 +11,9 @@ configuration:
     - private
     - templates
     - .obsidian
+    # Obsidian vault packs under Кейси/Берклі (keep files on disk; exclude from site graph)
+    - "06-Кейси/Берклі/Приклад-Каховська-ГЕС/**"
+    - "06-Кейси/Берклі/Волт-для-ДЗ/**"
   theme:
     fontOrigin: googleFonts
     cdnCaching: true
