@@ -42,6 +42,11 @@ configuration:
         tertiary: "#84a59d"
         highlight: rgba(143, 159, 169, 0.15)
         textHighlight: "#b3aa0288"
+  links:
+    markdownLinkResolution: shortest
+  contentIndex:
+    enableSiteMap: true
+    enableRSS: true
 plugins:
   - source: "@quartz-community/created-modified-date"
     enabled: true
@@ -60,6 +65,10 @@ plugins:
         dark: github-dark
       keepBackground: false
     order: 20
+  # GFM must run before OFM (orders 30/40) on Quartz 5.1 / OFM 2.x
+  - source: "@quartz-community/github-flavored-markdown"
+    enabled: true
+    order: 30
   - source: "@quartz-community/obsidian-flavored-markdown"
     enabled: true
     options:
@@ -69,15 +78,13 @@ plugins:
       callouts: true
       mermaid: true
       parseTags: true
-      parseArrows: true
       parseBlockReferences: true
       enableInHtmlEmbed: false
       enableYouTubeEmbed: true
       enableVideoEmbed: true
       enableCheckbox: true
-    order: 30
-  - source: "@quartz-community/github-flavored-markdown"
-    enabled: true
+      # Preserve previous hard-line-breaks behaviour (single newline → space)
+      strictLineBreaks: true
     order: 40
   - source: "@quartz-community/table-of-contents"
     enabled: true
@@ -85,11 +92,6 @@ plugins:
     layout:
       position: right
       priority: 30
-  - source: "@quartz-community/crawl-links"
-    enabled: true
-    options:
-      markdownLinkResolution: shortest
-    order: 60
   - source: "@quartz-community/description"
     enabled: true
     order: 70
@@ -101,9 +103,6 @@ plugins:
   - source: "@quartz-community/citations"
     enabled: false
     order: 85
-  - source: "@quartz-community/hard-line-breaks"
-    enabled: true
-    order: 90
   - source: "@quartz-community/ox-hugo"
     enabled: false
     order: 91
@@ -117,8 +116,6 @@ plugins:
     options:
       theme: default
       mode: both
-  - source: "@quartz-community/remove-draft"
-    enabled: true
   - source: "@quartz-community/explicit-publish"
     enabled: false
   - source: "@quartz-community/unlisted-pages"
@@ -140,11 +137,6 @@ plugins:
       display: all
   - source: "@quartz-community/alias-redirects"
     enabled: true
-  - source: "@quartz-community/content-index"
-    enabled: true
-    options:
-      enableSiteMap: true
-      enableRSS: true
   - source: "@quartz-community/favicon"
     enabled: true
   - source: "@quartz-community/og-image"
@@ -199,32 +191,32 @@ plugins:
       sections:
         - id: lesson
           label: Уроки
-          tags: [lesson]
+          tags: [ lesson ]
           cssVar: --hub-lesson
           fallback: "#eec35e"
         - id: homework
           label: ДЗ
-          tags: [homework]
+          tags: [ homework ]
           cssVar: --hub-homework
           fallback: "#d4845a"
         - id: materials
           label: Матеріали
-          tags: [materials]
+          tags: [ materials ]
           cssVar: --hub-materials
           fallback: "#7a9bb8"
         - id: project
           label: Проєкти
-          tags: [project]
+          tags: [ project ]
           cssVar: --hub-project
           fallback: "#7cb87c"
         - id: case
           label: Кейси
-          tags: [case]
+          tags: [ case ]
           cssVar: --hub-case
           fallback: "#c47a9e"
         - id: meta
           label: Мета
-          tags: [meta]
+          tags: [ meta ]
           cssVar: --hub-meta
           fallback: "#9a9a9a"
       legend:
@@ -324,8 +316,6 @@ plugins:
         - aliases
       excludedProperties: []
       hidePropertiesView: true
-      delimiters: ---
-      language: yaml
     order: 5
     layout:
       position: beforeBody
